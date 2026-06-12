@@ -1,37 +1,66 @@
 ---
 title: "About"
-description: "A bit about me and this blog."
+description: "Hi, I'm Kai. I build and operate mission-critical infrastructure for blockchain networks, cloud-native platforms, and distributed systems."
 ---
 
-AstroPaper is a minimal, accessible and SEO-friendly blog theme built with [Astro](https://astro.build/) and [Tailwind CSS](https://tailwindcss.com/).
+Hi, I'm **Kai**.
 
-![Astro Paper](@/assets/images/astropaper-og.jpg)
+I build and operate mission-critical infrastructure for blockchain networks, cloud-native platforms, and distributed systems.
 
-AstroPaper provides a solid foundation for blogs, or even portfolios\_ with full markdown support, built-in dark mode, and a clean layout that works out-of-the-box.
+Over the past several years, I've worked across DevOps, platform engineering, and Web3 infrastructure—operating validator and full-node fleets, deploying smart contract services, automating cloud platforms on AWS, and designing Kubernetes-based production environments.
 
-The blog posts in this theme also serve as guides, docs or example articles\_ making AstroPaper a flexible starting point for your next content-driven site.
+Beyond engineering, I've founded and operated crypto-focused projects, built developer communities, and mentored engineers transitioning into backend, cloud, and DevOps careers.
 
-## Features
+My interests lie at the intersection of:
 
-AstroPaper comes with a set of useful features that make content publishing easy and effective:
+- Cloud Native Infrastructure
+- Blockchain & Validator Operations
+- Distributed Systems
+- Observability & Reliability Engineering
+- Linux Kernel
 
-- SEO-friendly
-- Fast performance
-- Light & dark mode
-- Highly customizable
-- Organizable blog posts
-- Responsive & accessible
-- Static search with [PageFind](https://pagefind.app/)
-- Automatic social image generation
+I enjoy sharing practical lessons from real-world production environments—from Kubernetes internals and Linux networking to blockchain node operations and Web3 infrastructure.
 
-and so much more.
+## Areas of Interest
 
-## Show your support
+### DevOps & Platform Engineering
 
-If you like [AstroPaper](https://github.com/satnaing/astro-paper), consider giving it a star ⭐️.
+- Kubernetes
+- Terraform
+- GitOps (Argo CD)
+- CI/CD
+- Cloud with AWS
+- Service Mesh (Istio)
 
-Found a bug 🐛 or have an improvement ✨ in mind? Feel free to open an [issue](https://github.com/satnaing/astro-paper/issues), submit a [pull request](https://github.com/satnaing/astro-paper/pulls) or start a [discussion](https://github.com/satnaing/astro-paper/discussions).
+### Observability
 
-If you find this theme helpful, you can also [sponsor me on GitHub](https://github.com/sponsors/satnaing) or [buy me a coffee](https://buymeacoffee.com/satnaing) to show your support — every penny counts.
+- Prometheus
+- Grafana
+- Loki
 
-Kyay zuu! 🙏🏼
+### Linux & Networking
+
+- Linux Kernel
+- TCP/IP
+- Network Security
+- DDoS Mitigation
+- DNS
+
+### Blockchain Infrastructure
+
+- Validator Operations
+- Full Node Operations
+- Smart Contracts
+
+### Programming
+
+- TypeScript
+- Python
+- Distributed Systems
+
+## Connect
+
+- GitHub: [github.com/play-builder](https://github.com/play-builder/)
+- YouTube: [youtube.com/@play-builder47](https://www.youtube.com/@play-builder47)
+- LinkedIn: [linkedin.com/in/changsuk-jeon](https://www.linkedin.com/in/changsuk-jeon)
+- Email: [playbuilder47@gmail.com](mailto:playbuilder47@gmail.com)
