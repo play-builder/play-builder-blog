@@ -1,0 +1,28 @@
+[
+  {
+    "id": "course-1",
+    "last_edited_time": "2026-08-25T06:00:00.000Z",
+    "properties": {
+      "Title": { "type": "title", "title": [{ "plain_text": "Ethereum Validator Operations" }] },
+      "Slug": { "type": "rich_text", "rich_text": [{ "plain_text": "ethereum-validator-operations" }] },
+      "Description": { "type": "rich_text", "rich_text": [{ "plain_text": "Operate validators safely" }] },
+      "Order": { "type": "number", "number": 1 },
+      "Status": { "type": "status", "status": { "name": "Published" } },
+      "Tags": { "type": "multi_select", "multi_select": [{ "name": "Ethereum" }] },
+      "Cover": { "type": "files", "files": [] }
+    }
+  },
+  {
+    "id": "course-draft",
+    "last_edited_time": "2026-08-25T06:00:00.000Z",
+    "properties": {
+      "Title": { "type": "title", "title": [{ "plain_text": "Draft Course" }] },
+      "Slug": { "type": "rich_text", "rich_text": [{ "plain_text": "draft-course" }] },
+      "Description": { "type": "rich_text", "rich_text": [{ "plain_text": "Not published" }] },
+      "Order": { "type": "number", "number": 2 },
+      "Status": { "type": "status", "status": { "name": "Draft" } },
+      "Tags": { "type": "multi_select", "multi_select": [] },
+      "Cover": { "type": "files", "files": [] }
+    }
+  }
+]

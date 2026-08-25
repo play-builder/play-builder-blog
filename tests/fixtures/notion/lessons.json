@@ -1,0 +1,50 @@
+[
+  {
+    "id": "lesson-1",
+    "last_edited_time": "2026-08-25T06:10:00.000Z",
+    "properties": {
+      "Title": { "type": "title", "title": [{ "plain_text": "Install clients" }] },
+      "Slug": { "type": "rich_text", "rich_text": [{ "plain_text": "install-clients" }] },
+      "Description": { "type": "rich_text", "rich_text": [{ "plain_text": "Install clients" }] },
+      "Course": { "type": "relation", "relation": [{ "id": "course-1" }] },
+      "Module": { "type": "select", "select": { "name": "Setup" } },
+      "ModuleOrder": { "type": "number", "number": 1 },
+      "LessonOrder": { "type": "number", "number": 1 },
+      "Status": { "type": "status", "status": { "name": "Published" } },
+      "EstimatedMinutes": { "type": "number", "number": 30 },
+      "Tags": { "type": "multi_select", "multi_select": [{ "name": "Linux" }] }
+    }
+  },
+  {
+    "id": "lesson-2",
+    "last_edited_time": "2026-08-25T06:20:00.000Z",
+    "properties": {
+      "Title": { "type": "title", "title": [{ "plain_text": "Verify sync" }] },
+      "Slug": { "type": "rich_text", "rich_text": [{ "plain_text": "verify-sync" }] },
+      "Description": { "type": "rich_text", "rich_text": [{ "plain_text": "Verify node sync" }] },
+      "Course": { "type": "relation", "relation": [{ "id": "course-1" }] },
+      "Module": { "type": "select", "select": { "name": "Operations" } },
+      "ModuleOrder": { "type": "number", "number": 2 },
+      "LessonOrder": { "type": "number", "number": 1 },
+      "Status": { "type": "status", "status": { "name": "Published" } },
+      "EstimatedMinutes": { "type": "number", "number": 20 },
+      "Tags": { "type": "multi_select", "multi_select": [{ "name": "Ethereum" }] }
+    }
+  },
+  {
+    "id": "lesson-draft",
+    "last_edited_time": "2026-08-25T06:30:00.000Z",
+    "properties": {
+      "Title": { "type": "title", "title": [{ "plain_text": "Draft lesson" }] },
+      "Slug": { "type": "rich_text", "rich_text": [{ "plain_text": "draft-lesson" }] },
+      "Description": { "type": "rich_text", "rich_text": [{ "plain_text": "Not published" }] },
+      "Course": { "type": "relation", "relation": [{ "id": "course-1" }] },
+      "Module": { "type": "select", "select": { "name": "Operations" } },
+      "ModuleOrder": { "type": "number", "number": 2 },
+      "LessonOrder": { "type": "number", "number": 2 },
+      "Status": { "type": "status", "status": { "name": "Draft" } },
+      "EstimatedMinutes": { "type": "number", "number": null },
+      "Tags": { "type": "multi_select", "multi_select": [] }
+    }
+  }
+]

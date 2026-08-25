@@ -25,6 +25,10 @@ pnpm-debug.log*
 
 # pagefind
 public/pagefind
+public/notion-assets/
+
+# build-time Notion content
+src/content/generated-notion/
 
 # pnpm
 .pnpm-store
