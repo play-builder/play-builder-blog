@@ -51,5 +51,8 @@ jobs:
       - name: "🚀 Verify a secret-free default build"
         run: pnpm run build
 
+      - name: "🚫 Verify disabled sync has no stale course"
+        run: pnpm run verify:disabled-build
+
       - name: "☁️ Type-check Pages Functions"
         run: pnpm exec tsc -p functions/tsconfig.json --noEmit
