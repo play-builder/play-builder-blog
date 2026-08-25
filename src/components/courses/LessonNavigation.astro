@@ -1,0 +1,23 @@
+---
+import type { CourseCatalog } from "@/courses/catalog";
+
+const { catalog, currentSlug } = Astro.props as { catalog: CourseCatalog; currentSlug: string };
+const navigation = catalog.lessonNavigation[currentSlug] ?? {};
+const bySlug = new Map(catalog.lessons.map(lesson => [lesson.data.slug, lesson]));
+const previous = navigation.previous ? bySlug.get(navigation.previous) : undefined;
+const next = navigation.next ? bySlug.get(navigation.next) : undefined;
+const base = `/courses/${catalog.course.data.slug}`;
+---
+
+<nav aria-label="Lesson navigation" class="border-border mt-12 grid gap-4 border-t pt-6 sm:grid-cols-2">
+  {previous ? (
+    <a class="hover:text-accent rounded-lg border p-4" href={`${base}/${previous.data.slug}/`}>
+      <span class="block text-xs uppercase opacity-60">Previous</span>{previous.data.title}
+    </a>
+  ) : <span />}
+  {next && (
+    <a class="hover:text-accent rounded-lg border p-4 text-right" href={`${base}/${next.data.slug}/`}>
+      <span class="block text-xs uppercase opacity-60">Next</span>{next.data.title}
+    </a>
+  )}
+</nav>

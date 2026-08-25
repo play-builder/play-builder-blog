@@ -1,0 +1,43 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import CourseSidebar from "@/components/courses/CourseSidebar.astro";
+import Layout from "@/layouts/Layout.astro";
+import { buildCourseCatalog } from "@/courses/catalog";
+
+export const getStaticPaths = (async () => {
+  const catalog = buildCourseCatalog(await getCollection("courses"), await getCollection("lessons"));
+  return catalog.map(item => ({ params: { course: item.course.data.slug }, props: { catalog: item } }));
+}) satisfies GetStaticPaths;
+
+const { catalog } = Astro.props;
+---
+
+<Layout title={`${catalog.course.data.title} | Play Builder`} description={catalog.course.data.description}>
+  <Header />
+  <main id="main-content" class="app-layout py-10" data-pagefind-filter="content:course">
+    <nav aria-label="Breadcrumb" class="mb-6 text-sm opacity-75"><a href="/courses/">Courses</a> / <span aria-current="page">{catalog.course.data.title}</span></nav>
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <article>
+        <p class="text-accent font-semibold">Course</p>
+        <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{catalog.course.data.title}</h1>
+        <p class="mt-4 text-lg opacity-80">{catalog.course.data.description}</p>
+        <h2 class="mt-10 text-2xl font-semibold">Curriculum</h2>
+        {catalog.modules.map(module => (
+          <section class="mt-7">
+            <h3 class="text-lg font-semibold">{module.name}</h3>
+            <ol class="border-border mt-3 divide-y rounded-xl border">
+              {module.lessons.map(lesson => (
+                <li><a class="hover:text-accent flex justify-between p-4" href={`/courses/${catalog.course.data.slug}/${lesson.data.slug}/`}><span>{lesson.data.title}</span><span class="text-sm opacity-60">{lesson.data.estimatedMinutes ? `${lesson.data.estimatedMinutes} min` : "Lesson"}</span></a></li>
+              ))}
+            </ol>
+          </section>
+        ))}
+      </article>
+      <aside><CourseSidebar {catalog} /></aside>
+    </div>
+  </main>
+  <Footer />
+</Layout>

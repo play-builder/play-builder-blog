@@ -2,6 +2,7 @@
 import type { HTMLAttributes } from "astro/types";
 import Socials from "./Socials.astro";
 import { useTranslations } from "@/i18n";
+import { getRelativeLocaleUrl } from "astro:i18n";
 
 type Props = {
   noMarginTop?: boolean;
@@ -11,6 +12,7 @@ const { noMarginTop = false, class: className, ...attrs } = Astro.props;
 
 const t = useTranslations(Astro.currentLocale);
 const currentYear = new Date().getFullYear();
+const locale = Astro.currentLocale ?? "en";
 ---
 
 <footer
@@ -21,10 +23,17 @@ const currentYear = new Date().getFullYear();
     class="border-border flex flex-col items-center justify-between border-t py-6 sm:flex-row-reverse sm:py-4"
   >
     <Socials />
-    <div class="my-2 flex flex-col items-center whitespace-nowrap sm:flex-row">
-      <span>{t.footer.copyright} &#169; {currentYear}</span>
-      <span class="hidden sm:inline">&nbsp;|&nbsp;</span>
-      <span>{t.footer.allRightsReserved}</span>
+    <div class="my-2 flex flex-col items-center sm:items-start">
+      <nav aria-label="Secondary navigation" class="mb-2 flex gap-4 text-sm">
+        <a class="hover:text-accent" href={getRelativeLocaleUrl(locale, "tags")}>{t.nav.tags}</a>
+        <a class="hover:text-accent" href={getRelativeLocaleUrl(locale, "archives")}>{t.nav.archives}</a>
+        <a class="hover:text-accent" href="https://playbuilder.xyz">Profile</a>
+      </nav>
+      <div class="whitespace-nowrap">
+        <span>{t.footer.copyright} &#169; {currentYear}</span>
+        <span class="hidden sm:inline">&nbsp;|&nbsp;</span>
+        <span>{t.footer.allRightsReserved}</span>
+      </div>
     </div>
   </div>
 </footer>

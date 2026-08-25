@@ -3,7 +3,7 @@ import { defineAstroPaperConfig } from "./src/types/config";
 
 export default defineAstroPaperConfig({
   site: {
-    url: "https://play-builder.pages.dev/",
+    url: "https://blog.playbuilder.xyz/",
     title: "Play Builder",
     description:
       "DevOps, Kubernetes, AWS, Terraform, Web3, and platform engineering notes by Kai. Sharing real-world experiences in cloud infrastructure, blockchain operations, and production systems.",

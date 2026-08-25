@@ -1,0 +1,27 @@
+---
+import { getCollection } from "astro:content";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import CourseCard from "@/components/courses/CourseCard.astro";
+import Layout from "@/layouts/Layout.astro";
+import { buildCourseCatalog } from "@/courses/catalog";
+
+const courses = await getCollection("courses");
+const lessons = await getCollection("lessons");
+const catalog = buildCourseCatalog(courses, lessons);
+---
+
+<Layout title="Courses | Play Builder" description="Hands-on infrastructure and Web3 courses from Play Builder.">
+  <Header />
+  <main id="main-content" class="app-layout py-10" data-pagefind-filter="content:course">
+    <p class="text-accent font-semibold">Learning resources</p>
+    <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Courses</h1>
+    <p class="mt-3 max-w-2xl opacity-80">Step-by-step labs and operational guides maintained in Notion and published as versioned static releases.</p>
+    {catalog.length ? (
+      <div class="mt-8 grid gap-5 md:grid-cols-2">{catalog.map(item => <CourseCard catalog={item} />)}</div>
+    ) : (
+      <p class="border-border mt-8 rounded-xl border p-6">No published courses yet.</p>
+    )}
+  </main>
+  <Footer />
+</Layout>

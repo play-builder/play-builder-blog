@@ -1,0 +1,30 @@
+---
+import type { CourseCatalog } from "@/courses/catalog";
+
+const { catalog, currentSlug } = Astro.props as { catalog: CourseCatalog; currentSlug?: string };
+---
+
+<nav aria-label="Course curriculum" class="border-border rounded-xl border p-4">
+  <a class="hover:text-accent font-semibold" href={`/courses/${catalog.course.data.slug}/`}>Curriculum</a>
+  {catalog.modules.map(module => (
+    <section class="mt-5">
+      <h2 class="text-sm font-semibold uppercase tracking-wide opacity-70">{module.name}</h2>
+      <ol class="mt-2 space-y-2">
+        {module.lessons.map(lesson => (
+          <li>
+            <a
+              href={`/courses/${catalog.course.data.slug}/${lesson.data.slug}/`}
+              aria-current={currentSlug === lesson.data.slug ? "page" : undefined}
+              class:list={[
+                "hover:text-accent block rounded-md px-2 py-1.5 text-sm",
+                { "bg-accent/10 text-accent font-semibold": currentSlug === lesson.data.slug },
+              ]}
+            >
+              {lesson.data.title}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+  ))}
+</nav>

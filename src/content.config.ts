@@ -34,4 +34,39 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { posts, pages };
+const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+
+const courses = defineCollection({
+  loader: glob({ pattern: "courses/*.json", base: "./src/content/generated-notion" }),
+  schema: z.object({
+    id: z.string(),
+    title: z.string(),
+    slug,
+    description: z.string(),
+    order: z.number().int().nonnegative(),
+    status: z.literal("Published"),
+    tags: z.array(z.string()),
+    coverUrl: z.string().optional(),
+    lastEditedTime: z.coerce.date(),
+  }),
+});
+
+const lessons = defineCollection({
+  loader: glob({ pattern: "lessons/**/*.md", base: "./src/content/generated-notion" }),
+  schema: z.object({
+    notionId: z.string(),
+    title: z.string(),
+    slug,
+    description: z.string(),
+    courseId: z.string(),
+    courseSlug: slug,
+    module: z.string(),
+    moduleOrder: z.number().int().nonnegative(),
+    lessonOrder: z.number().int().nonnegative(),
+    estimatedMinutes: z.number().nonnegative().optional(),
+    tags: z.array(z.string()),
+    lastEditedTime: z.coerce.date(),
+  }),
+});
+
+export const collections = { posts, pages, courses, lessons };
