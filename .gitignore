@@ -29,5 +29,8 @@ public/pagefind
 # pnpm
 .pnpm-store
 
+# isolated feature worktrees
+.worktrees/
+
 # docker compose
 compose.override.yaml
