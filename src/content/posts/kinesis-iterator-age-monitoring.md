@@ -130,7 +130,7 @@ triggers:
   - type: aws-cloudwatch
     metadata:
       metricName: GetRecords.IteratorAgeMilliseconds
-      targetMetricValue: "15000"  # 15초 넘어가면 늘려!
+      targetMetricValue: "15000" # 15초 넘어가면 늘려!
 ```
 
 ## 5. 임계치(Threshold)는 어떻게 잡을까요?

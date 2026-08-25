@@ -35,11 +35,11 @@ bastion$ ssh -i ~/.ssh/private-key.pem ec2-user@<PRIVATE_IP>
 
 **문제점:**
 
-| 문제 | 설명 |
-| --- | --- |
-| 키 집중 | Bastion이 침해되면 모든 서버의 키가 노출됨 |
-| 키 복제 | 개발자들이 키 파일을 복사해서 공유하게 됨 |
-| 추적 불가 | 퇴사자가 키를 가지고 있어도 알 수 없음 |
+| 문제      | 설명                                       |
+| --------- | ------------------------------------------ |
+| 키 집중   | Bastion이 침해되면 모든 서버의 키가 노출됨 |
+| 키 복제   | 개발자들이 키 파일을 복사해서 공유하게 됨  |
+| 추적 불가 | 퇴사자가 키를 가지고 있어도 알 수 없음     |
 
 ---
 
@@ -89,12 +89,12 @@ ssh -J ec2-user@<BASTION_PUBLIC_IP> ec2-user@<PRIVATE_IP>
 
 **핵심 특징:**
 
-| 항목 | Bastion 방식 | SSM 방식 |
-| --- | --- | --- |
-| 인증 | SSH 키 파일 | IAM Role/User |
-| 포트 | 22 (SSH) | 443 (HTTPS) |
-| 중간 서버 | Bastion 필요 | 불필요 |
-| 세션 로깅 | 수동 구성 | 자동 지원 |
+| 항목      | Bastion 방식      | SSM 방식               |
+| --------- | ----------------- | ---------------------- |
+| 인증      | SSH 키 파일       | IAM Role/User          |
+| 포트      | 22 (SSH)          | 443 (HTTPS)            |
+| 중간 서버 | Bastion 필요      | 불필요                 |
+| 세션 로깅 | 수동 구성         | 자동 지원              |
 | 권한 회수 | 키 파일 회수 필요 | IAM 정책 변경으로 즉시 |
 
 ---
@@ -353,13 +353,13 @@ resource "aws_iam_policy" "ssm_dev_only" {
 
 SSM 접속이 되지 않을 때 확인할 항목입니다.
 
-| 순서 | 확인 항목 | 확인 방법 |
-| --- | --- | --- |
-| 1 | SSM Agent 실행 중? | `systemctl status amazon-ssm-agent` |
-| 2 | IAM Role 연결됨? | EC2 콘솔에서 IAM role 확인 |
-| 3 | 정책 포함됨? | `AmazonSSMManagedInstanceCore` 확인 |
-| 4 | 네트워크 경로? | NAT Gateway 또는 VPC Endpoint 확인 |
-| 5 | Agent 로그 | `tail -f /var/log/amazon/ssm/amazon-ssm-agent.log` |
+| 순서 | 확인 항목          | 확인 방법                                          |
+| ---- | ------------------ | -------------------------------------------------- |
+| 1    | SSM Agent 실행 중? | `systemctl status amazon-ssm-agent`                |
+| 2    | IAM Role 연결됨?   | EC2 콘솔에서 IAM role 확인                         |
+| 3    | 정책 포함됨?       | `AmazonSSMManagedInstanceCore` 확인                |
+| 4    | 네트워크 경로?     | NAT Gateway 또는 VPC Endpoint 확인                 |
+| 5    | Agent 로그         | `tail -f /var/log/amazon/ssm/amazon-ssm-agent.log` |
 
 가장 흔한 실수는 **IAM Role을 연결하지 않는 것**입니다. Launch Template에서 `iam_instance_profile`을 빠뜨리는 경우가 많습니다.
 
@@ -367,11 +367,11 @@ SSM 접속이 되지 않을 때 확인할 항목입니다.
 
 ## 정리
 
-| 방식 | 키 파일 | 22번 포트 | Bastion | 세션 로깅 | 권한 관리 |
-| --- | --- | --- | --- | --- | --- |
-| **1세대 (키 저장)** | 서버에 보관 | 필요 | 필요 | 수동 | 수동 |
-| **2세대 (Agent Fwd)** | 로컬에만 | 필요 | 필요 | 수동 | 수동 |
-| **3세대 (SSM)** | 불필요 | 불필요 | 불필요 | 자동 | IAM 통합 |
+| 방식                  | 키 파일     | 22번 포트 | Bastion | 세션 로깅 | 권한 관리 |
+| --------------------- | ----------- | --------- | ------- | --------- | --------- |
+| **1세대 (키 저장)**   | 서버에 보관 | 필요      | 필요    | 수동      | 수동      |
+| **2세대 (Agent Fwd)** | 로컬에만    | 필요      | 필요    | 수동      | 수동      |
+| **3세대 (SSM)**       | 불필요      | 불필요    | 불필요  | 자동      | IAM 통합  |
 
 - **`SSM`**은 "**No Key, No Port 22, No Bastion**"을 실현하는 현대적인 서버 접속 방식이에요.
 - IAM 기반 인증으로 권한 관리가 단순해지고, 퇴사자 권한 회수도 IAM 정책 변경만으로 즉시 처리되죠.

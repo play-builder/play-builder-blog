@@ -32,12 +32,12 @@ draft: false
 
 **`Linux Capabilities`**는 Root 권한을 잘게 쪼개어 필요한 것만 부여하는 기능입니다.
 
-| Capability | 기능 |
-| --- | --- |
-| NET_BIND_SERVICE | 1024 미만 포트 바인딩 |
-| NET_RAW | Raw 소켓 생성 (ping 등) |
-| SYS_TIME | 시스템 시간 변경 |
-| SYS_ADMIN | 다양한 관리 작업 |
+| Capability       | 기능                    |
+| ---------------- | ----------------------- |
+| NET_BIND_SERVICE | 1024 미만 포트 바인딩   |
+| NET_RAW          | Raw 소켓 생성 (ping 등) |
+| SYS_TIME         | 시스템 시간 변경        |
+| SYS_ADMIN        | 다양한 관리 작업        |
 
 이 중 `NET_BIND_SERVICE`만 부여하면 Root가 아니어도 80번 포트를 열 수 있습니다.
 
@@ -113,45 +113,45 @@ metadata:
     app: secure-nginx
 spec:
   containers:
-  - name: nginx
-    image: nginx:alpine
-    ports:
-    - containerPort: 80
+    - name: nginx
+      image: nginx:alpine
+      ports:
+        - containerPort: 80
 
-    securityContext:
-      runAsUser: 1000                  # Root(0)가 아닌 일반 유저
-      runAsGroup: 3000
-      allowPrivilegeEscalation: false  # 권한 상승 차단
-      capabilities:
-        drop: ["ALL"]                  # 모든 Capability 제거
-        add: ["NET_BIND_SERVICE"]      # 80번 포트 바인딩만 허용
+      securityContext:
+        runAsUser: 1000 # Root(0)가 아닌 일반 유저
+        runAsGroup: 3000
+        allowPrivilegeEscalation: false # 권한 상승 차단
+        capabilities:
+          drop: ["ALL"] # 모든 Capability 제거
+          add: ["NET_BIND_SERVICE"] # 80번 포트 바인딩만 허용
 
-    volumeMounts:
-    - name: config
-      mountPath: /etc/nginx/nginx.conf
-      subPath: nginx.conf
-    - name: config
-      mountPath: /etc/nginx/conf.d/default.conf
-      subPath: default.conf
-    - name: config
-      mountPath: /usr/share/nginx/html/index.html
-      subPath: index.html
+      volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+        - name: config
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html
 
   volumes:
-  - name: config
-    configMap:
-      name: secure-nginx-conf
+    - name: config
+      configMap:
+        name: secure-nginx-conf
 ```
 
 각 설정 값 비교:
 
-| 설정 | 값 | 효과 |
-| --- | --- | --- |
-| runAsUser | 1000 | UID 1000번 유저로 실행 (Root 아님) |
-| runAsGroup | 3000 | GID 3000번 그룹으로 실행 |
-| allowPrivilegeEscalation | false | SetUID 등을 통한 권한 상승 차단 |
-| capabilities.drop | ["ALL"] | 모든 특수 권한 제거 |
-| capabilities.add | ["NET_BIND_SERVICE"] | 80번 포트 바인딩 권한만 부여 |
+| 설정                     | 값                   | 효과                               |
+| ------------------------ | -------------------- | ---------------------------------- |
+| runAsUser                | 1000                 | UID 1000번 유저로 실행 (Root 아님) |
+| runAsGroup               | 3000                 | GID 3000번 그룹으로 실행           |
+| allowPrivilegeEscalation | false                | SetUID 등을 통한 권한 상승 차단    |
+| capabilities.drop        | ["ALL"]              | 모든 특수 권한 제거                |
+| capabilities.add         | ["NET_BIND_SERVICE"] | 80번 포트 바인딩 권한만 부여       |
 
 ```bash
 kubectl apply -f 02-secure-pod.yaml
@@ -189,7 +189,7 @@ curl http://localhost:8080
 정상 응답이 오면 성공입니다.
 
 ```json
-{"status": "ok", "message": "Secure Nginx Running"}
+{ "status": "ok", "message": "Secure Nginx Running" }
 ```
 
 ---
@@ -275,38 +275,38 @@ metadata:
 spec:
   securityContext:
     sysctls:
-    - name: net.ipv4.ping_group_range
-      value: "1 0"    # Ping 비활성화
+      - name: net.ipv4.ping_group_range
+        value: "1 0" # Ping 비활성화
 
   containers:
-  - name: nginx
-    image: nginx:alpine
-    ports:
-    - containerPort: 80
+    - name: nginx
+      image: nginx:alpine
+      ports:
+        - containerPort: 80
 
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 3000
-      allowPrivilegeEscalation: false
-      capabilities:
-        drop: ["ALL"]
-        add: ["NET_BIND_SERVICE"]
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+          add: ["NET_BIND_SERVICE"]
 
-    volumeMounts:
-    - name: config
-      mountPath: /etc/nginx/nginx.conf
-      subPath: nginx.conf
-    - name: config
-      mountPath: /etc/nginx/conf.d/default.conf
-      subPath: default.conf
-    - name: config
-      mountPath: /usr/share/nginx/html/index.html
-      subPath: index.html
+      volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+        - name: config
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html
 
   volumes:
-  - name: config
-    configMap:
-      name: secure-nginx-conf
+    - name: config
+      configMap:
+        name: secure-nginx-conf
 ```
 
 주목할 점은 `sysctls`가 Pod 레벨(`spec.securityContext`)에, `capabilities`는 컨테이너 레벨(`containers[].securityContext`)에 정의된다는 것입니다.
@@ -338,12 +338,12 @@ ping: permission denied (are you root?)
 
 ## 정리: 적용된 보안 계층
 
-| 계층 | 설정 | 차단하는 공격 |
-| --- | --- | --- |
-| 신분 제한 | runAsUser: 1000 | 시스템 파일 변조, 패키지 설치 |
-| 권한 상승 차단 | allowPrivilegeEscalation: false | SetUID 악용, Container Escape |
-| Capability 최소화 | drop: ["ALL"], add: ["NET_BIND_SERVICE"] | 대부분의 시스템 조작 |
-| 커널 설정 | sysctls: ping_group_range | 네트워크 정찰 (ping) |
+| 계층              | 설정                                     | 차단하는 공격                 |
+| ----------------- | ---------------------------------------- | ----------------------------- |
+| 신분 제한         | runAsUser: 1000                          | 시스템 파일 변조, 패키지 설치 |
+| 권한 상승 차단    | allowPrivilegeEscalation: false          | SetUID 악용, Container Escape |
+| Capability 최소화 | drop: ["ALL"], add: ["NET_BIND_SERVICE"] | 대부분의 시스템 조작          |
+| 커널 설정         | sysctls: ping_group_range                | 네트워크 정찰 (ping)          |
 
 ---
 
@@ -359,10 +359,10 @@ kubectl logs secure-webserver
 
 흔한 원인:
 
-| 에러 메시지 | 원인 | 해결 |
-| --- | --- | --- |
-| Permission denied: /var/log | 로그 경로가 /tmp로 변경되지 않음 | nginx.conf의 error_log 경로 확인 |
-| bind() failed: Permission denied | NET_BIND_SERVICE가 없음 | capabilities.add 확인 |
+| 에러 메시지                      | 원인                             | 해결                             |
+| -------------------------------- | -------------------------------- | -------------------------------- |
+| Permission denied: /var/log      | 로그 경로가 /tmp로 변경되지 않음 | nginx.conf의 error_log 경로 확인 |
+| bind() failed: Permission denied | NET_BIND_SERVICE가 없음          | capabilities.add 확인            |
 
 ### sysctls 적용이 안 될 때
 

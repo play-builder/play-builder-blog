@@ -48,11 +48,7 @@ draft: false
       "Principal": {
         "AWS": "arn:aws:iam::YOUR_ACCOUNT_ID:user/YOUR_KEY_USER"
       },
-      "Action": [
-        "kms:Encrypt",
-        "kms:Decrypt",
-        "kms:GenerateDataKey"
-      ],
+      "Action": ["kms:Encrypt", "kms:Decrypt", "kms:GenerateDataKey"],
       "Resource": "*",
       "Condition": {
         "StringEquals": {
@@ -174,59 +170,66 @@ npm install @aws-sdk/client-kms
 
 ```js
 const { KMSClient, GenerateDataKeyCommand } = require("@aws-sdk/client-kms");
-const fs = require('fs');
-const crypto = require('crypto');
+const fs = require("fs");
+const crypto = require("crypto");
 
 // 설정
-const KEY_ID = 'alias/kms-key';
-const REGION = 'us-east-1';
-const CONTEXT = { Project: 'EthWallet' };
+const KEY_ID = "alias/kms-key";
+const REGION = "us-east-1";
+const CONTEXT = { Project: "EthWallet" };
 
 const client = new KMSClient({ region: REGION });
 
 async function envelopeEncrypt(plainTextSecret) {
-    console.log(`🔒 [1단계] KMS (${REGION})에 데이터 키(DEK) 생성을 요청합니다...`);
+  console.log(
+    `🔒 [1단계] KMS (${REGION})에 데이터 키(DEK) 생성을 요청합니다...`
+  );
 
-    // 1. 데이터 키 생성 요청
-    const command = new GenerateDataKeyCommand({
-        KeyId: KEY_ID,
-        KeySpec: 'AES_256',
-        EncryptionContext: CONTEXT
-    });
-    const response = await client.send(command);
+  // 1. 데이터 키 생성 요청
+  const command = new GenerateDataKeyCommand({
+    KeyId: KEY_ID,
+    KeySpec: "AES_256",
+    EncryptionContext: CONTEXT,
+  });
+  const response = await client.send(command);
 
-    const plaintextDek = Buffer.from(response.Plaintext); // 쓰고 버릴 키
-    const encryptedDek = Buffer.from(response.CiphertextBlob); // 저장할 키
+  const plaintextDek = Buffer.from(response.Plaintext); // 쓰고 버릴 키
+  const encryptedDek = Buffer.from(response.CiphertextBlob); // 저장할 키
 
-    console.log("⚡ [2단계] 로컬 메모리에서 AES-256-GCM 암호화를 수행합니다...");
+  console.log("⚡ [2단계] 로컬 메모리에서 AES-256-GCM 암호화를 수행합니다...");
 
-    // 2. 로컬 암호화
-    const iv = crypto.randomBytes(12);
-    const cipher = crypto.createCipheriv('aes-256-gcm', plaintextDek, iv);
-    let encryptedData = cipher.update(plainTextSecret, 'utf8');
-    encryptedData = Buffer.concat([encryptedData, cipher.final()]);
-    const authTag = cipher.getAuthTag();
+  // 2. 로컬 암호화
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", plaintextDek, iv);
+  let encryptedData = cipher.update(plainTextSecret, "utf8");
+  encryptedData = Buffer.concat([encryptedData, cipher.final()]);
+  const authTag = cipher.getAuthTag();
 
-    // 3. 키 폐기 (가장 중요!)
-    plaintextDek.fill(0);
-    console.log("🗑️  [3단계] 보안을 위해 평문 키를 메모리에서 삭제했습니다.");
+  // 3. 키 폐기 (가장 중요!)
+  plaintextDek.fill(0);
+  console.log("🗑️  [3단계] 보안을 위해 평문 키를 메모리에서 삭제했습니다.");
 
-    return {
-        EncryptedData: encryptedData.toString('base64'),
-        EncryptedDEK: encryptedDek.toString('base64'),
-        IV: iv.toString('base64'),
-        AuthTag: authTag.toString('base64')
-    };
+  return {
+    EncryptedData: encryptedData.toString("base64"),
+    EncryptedDEK: encryptedDek.toString("base64"),
+    IV: iv.toString("base64"),
+    AuthTag: authTag.toString("base64"),
+  };
 }
 
 (async () => {
-    try {
-        const mySeed = "0xabf82ff96b463e9d82b83cb9bb450fe87e6166d4db6d7021d0c71d7e960d5abe";
-        console.log(`원본 데이터: ${mySeed.substring(0, 10)}...`);
-        const result = await envelopeEncrypt(mySeed);
-        fs.writeFileSync('mock_database.json', JSON.stringify(result, null, 2));
-        console.log("✅ [4단계] 암호화된 데이터를 'mock_database.json'에 저장했습니다.");
-    } catch (err) { console.error(err); }
+  try {
+    const mySeed =
+      "0xabf82ff96b463e9d82b83cb9bb450fe87e6166d4db6d7021d0c71d7e960d5abe";
+    console.log(`원본 데이터: ${mySeed.substring(0, 10)}...`);
+    const result = await envelopeEncrypt(mySeed);
+    fs.writeFileSync("mock_database.json", JSON.stringify(result, null, 2));
+    console.log(
+      "✅ [4단계] 암호화된 데이터를 'mock_database.json'에 저장했습니다."
+    );
+  } catch (err) {
+    console.error(err);
+  }
 })();
 ```
 
@@ -257,70 +260,69 @@ node encrypt.js
 
 ```js
 const { KMSClient, DecryptCommand } = require("@aws-sdk/client-kms");
-const fs = require('fs');
-const crypto = require('crypto');
+const fs = require("fs");
+const crypto = require("crypto");
 
 // --- 설정 ---
-const REGION = 'us-east-1';
-const CONTEXT = { Project: 'EthWallet' }; // 암호화 시 사용한 것과 동일해야 함
+const REGION = "us-east-1";
+const CONTEXT = { Project: "EthWallet" }; // 암호화 시 사용한 것과 동일해야 함
 
 const client = new KMSClient({ region: REGION });
 
 async function envelopeDecrypt() {
-    // 1. DB 파일 읽기
-    if (!fs.existsSync('mock_database.json')) {
-        console.log("❌ DB 파일이 없습니다. encrypt.js를 먼저 실행하세요.");
-        return;
-    }
-    const dbRecord = JSON.parse(fs.readFileSync('mock_database.json', 'utf8'));
+  // 1. DB 파일 읽기
+  if (!fs.existsSync("mock_database.json")) {
+    console.log("❌ DB 파일이 없습니다. encrypt.js를 먼저 실행하세요.");
+    return;
+  }
+  const dbRecord = JSON.parse(fs.readFileSync("mock_database.json", "utf8"));
 
-    // Base64 문자열을 다시 Buffer로 변환
-    const encryptedDek = Buffer.from(dbRecord.EncryptedDEK, 'base64');
-    const encryptedData = Buffer.from(dbRecord.EncryptedData, 'base64');
-    const iv = Buffer.from(dbRecord.IV, 'base64');
-    const authTag = Buffer.from(dbRecord.AuthTag, 'base64');
+  // Base64 문자열을 다시 Buffer로 변환
+  const encryptedDek = Buffer.from(dbRecord.EncryptedDEK, "base64");
+  const encryptedData = Buffer.from(dbRecord.EncryptedData, "base64");
+  const iv = Buffer.from(dbRecord.IV, "base64");
+  const authTag = Buffer.from(dbRecord.AuthTag, "base64");
 
-    console.log("KEY 🔑 [1단계] KMS에 잠긴 키(DEK)의 해제를 요청합니다...");
+  console.log("KEY 🔑 [1단계] KMS에 잠긴 키(DEK)의 해제를 요청합니다...");
 
-    try {
-        // 2. KMS에 Decrypt 요청
-        const command = new DecryptCommand({
-            CiphertextBlob: encryptedDek,
-            EncryptionContext: CONTEXT
-        });
+  try {
+    // 2. KMS에 Decrypt 요청
+    const command = new DecryptCommand({
+      CiphertextBlob: encryptedDek,
+      EncryptionContext: CONTEXT,
+    });
 
-        const response = await client.send(command);
-        const plaintextDek = Buffer.from(response.Plaintext);
+    const response = await client.send(command);
+    const plaintextDek = Buffer.from(response.Plaintext);
 
-        console.log("🔓 [2단계] 로컬에서 데이터를 복구합니다...");
+    console.log("🔓 [2단계] 로컬에서 데이터를 복구합니다...");
 
-        // 3. 로컬 복호화 (AES-256-GCM)
-        const decipher = crypto.createDecipheriv('aes-256-gcm', plaintextDek, iv);
-        decipher.setAuthTag(authTag); // GCM 모드는 Auth Tag 검증이 필수
+    // 3. 로컬 복호화 (AES-256-GCM)
+    const decipher = crypto.createDecipheriv("aes-256-gcm", plaintextDek, iv);
+    decipher.setAuthTag(authTag); // GCM 모드는 Auth Tag 검증이 필수
 
-        let decrypted = decipher.update(encryptedData);
-        decrypted = Buffer.concat([decrypted, decipher.final()]);
+    let decrypted = decipher.update(encryptedData);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-        // 4. 키 삭제
-        plaintextDek.fill(0);
+    // 4. 키 삭제
+    plaintextDek.fill(0);
 
-        return decrypted.toString('utf8');
-
-    } catch (err) {
-        console.error("❌ 복호화 실패! (Context 불일치 또는 권한 문제)");
-        throw err;
-    }
+    return decrypted.toString("utf8");
+  } catch (err) {
+    console.error("❌ 복호화 실패! (Context 불일치 또는 권한 문제)");
+    throw err;
+  }
 }
 
 // --- 실행부 ---
 (async () => {
-    try {
-        const recoveredText = await envelopeDecrypt();
-        console.log(`✅ [완료] 복구된 원본 데이터: ${recoveredText}`);
-        console.log("🎉 봉투 암호화/복호화 성공!");
-    } catch (err) {
-        // 에러 처리
-    }
+  try {
+    const recoveredText = await envelopeDecrypt();
+    console.log(`✅ [완료] 복구된 원본 데이터: ${recoveredText}`);
+    console.log("🎉 봉투 암호화/복호화 성공!");
+  } catch (err) {
+    // 에러 처리
+  }
 })();
 ```
 
