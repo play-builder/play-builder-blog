@@ -4,7 +4,11 @@ type FetchLike = typeof fetch;
 const json = (body: unknown, status: number, headers: HeadersInit = {}) =>
   Response.json(body, {
     status,
-    headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", ...headers },
+    headers: {
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+      ...headers,
+    },
   });
 
 export async function handlePublishRequest(
@@ -12,14 +16,16 @@ export async function handlePublishRequest(
   env: PublishEnv,
   deps: { fetchImpl?: FetchLike } = {}
 ): Promise<Response> {
-  if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405, { Allow: "POST" });
+  if (request.method !== "POST")
+    return json({ error: "method_not_allowed" }, 405, { Allow: "POST" });
   let hook: URL;
   try {
     hook = new URL(env.CLOUDFLARE_PAGES_DEPLOY_HOOK_URL);
   } catch {
     return json({ error: "publish_not_configured" }, 503);
   }
-  if (hook.protocol !== "https:") return json({ error: "publish_not_configured" }, 503);
+  if (hook.protocol !== "https:")
+    return json({ error: "publish_not_configured" }, 503);
   try {
     const response = await (deps.fetchImpl ?? fetch)(hook, {
       method: "POST",

@@ -12,28 +12,58 @@ export const getStaticPaths = (async () => {
   const lessons = await getCollection("lessons");
   const catalog = buildCourseCatalog(await getCollection("courses"), lessons);
   const byId = new Map(lessons.map(lesson => [lesson.id, lesson]));
-  return catalog.flatMap(item => item.lessons.map(lesson => ({
-    params: { course: item.course.data.slug, lesson: lesson.data.slug },
-    props: { catalog: item, lesson: byId.get(lesson.id)! },
-  })));
+  return catalog.flatMap(item =>
+    item.lessons.map(lesson => ({
+      params: { course: item.course.data.slug, lesson: lesson.data.slug },
+      props: { catalog: item, lesson: byId.get(lesson.id)! },
+    }))
+  );
 }) satisfies GetStaticPaths;
 
 const { catalog, lesson } = Astro.props;
 const { Content } = await render(lesson);
 ---
 
-<Layout title={`${lesson.data.title} | ${catalog.course.data.title}`} description={lesson.data.description}>
+<Layout
+  title={`${lesson.data.title} | ${catalog.course.data.title}`}
+  description={lesson.data.description}
+>
   <Header />
-  <main id="main-content" class="app-layout py-8" data-pagefind-filter="content:course">
-    <nav aria-label="Breadcrumb" class="mb-6 text-sm opacity-75"><a href="/courses/">Courses</a> / <a href={`/courses/${catalog.course.data.slug}/`}>{catalog.course.data.title}</a> / <span aria-current="page">{lesson.data.title}</span></nav>
-    <details class="border-border mb-6 rounded-xl border p-4 lg:hidden"><summary class="font-semibold">Course curriculum</summary><div class="mt-4"><CourseSidebar {catalog} currentSlug={lesson.data.slug} /></div></details>
+  <main
+    id="main-content"
+    class="app-layout py-8"
+    data-pagefind-filter="content:course"
+  >
+    <nav aria-label="Breadcrumb" class="mb-6 text-sm opacity-75">
+      <a href="/courses/">Courses</a> / <a
+        href={`/courses/${catalog.course.data.slug}/`}
+        >{catalog.course.data.title}</a
+      > / <span aria-current="page">{lesson.data.title}</span>
+    </nav>
+    <details class="border-border mb-6 rounded-xl border p-4 lg:hidden">
+      <summary class="font-semibold">Course curriculum</summary><div
+        class="mt-4"
+      >
+        <CourseSidebar {catalog} currentSlug={lesson.data.slug} />
+      </div>
+    </details>
     <div class="grid gap-10 lg:grid-cols-[18rem_minmax(0,1fr)]">
-      <aside class="hidden lg:block"><CourseSidebar {catalog} currentSlug={lesson.data.slug} /></aside>
+      <aside class="hidden lg:block">
+        <CourseSidebar {catalog} currentSlug={lesson.data.slug} />
+      </aside>
       <article data-pagefind-body>
         <p class="text-accent font-semibold">{lesson.data.module}</p>
         <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{lesson.data.title}</h1>
-        <p class="mt-3 opacity-70">{lesson.data.description}{lesson.data.estimatedMinutes ? ` · ${lesson.data.estimatedMinutes} min` : ""}</p>
-        <div class="prose prose-lg dark:prose-invert mt-8 max-w-none"><Content /></div>
+        <p class="mt-3 opacity-70">
+          {lesson.data.description}{
+            lesson.data.estimatedMinutes
+              ? ` · ${lesson.data.estimatedMinutes} min`
+              : ""
+          }
+        </p>
+        <div class="prose prose-lg dark:prose-invert mt-8 max-w-none">
+          <Content />
+        </div>
         <LessonNavigation {catalog} currentSlug={lesson.data.slug} />
       </article>
     </div>

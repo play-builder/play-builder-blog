@@ -15,7 +15,11 @@ describe("Notion asset ingestion", () => {
   it("writes an image to a deterministic public path", async () => {
     const writes: Array<{ path: string; bytes: Uint8Array }> = [];
     const result = await ingestAsset(
-      { pageId: "page-1", blockId: "block-1", url: "https://images.example.com/a.png" },
+      {
+        pageId: "page-1",
+        blockId: "block-1",
+        url: "https://images.example.com/a.png",
+      },
       {
         outputRoot: "/safe/public/notion-assets",
         fetchImpl: async () =>
@@ -25,8 +29,12 @@ describe("Notion asset ingestion", () => {
         writeFile: async (path, bytes) => void writes.push({ path, bytes }),
       }
     );
-    expect(result.publicPath).toMatch(/^\/notion-assets\/page-1\/block-1-[a-f0-9]{16}\.png$/);
-    expect(writes[0].path.startsWith("/safe/public/notion-assets/page-1/")).toBe(true);
+    expect(result.publicPath).toMatch(
+      /^\/notion-assets\/page-1\/block-1-[a-f0-9]{16}\.png$/
+    );
+    expect(
+      writes[0].path.startsWith("/safe/public/notion-assets/page-1/")
+    ).toBe(true);
   });
 
   it("rejects unsupported and oversized responses", async () => {
@@ -37,7 +45,11 @@ describe("Notion asset ingestion", () => {
     await expect(
       ingestAsset(
         { pageId: "p", blockId: "b", url: "https://example.com/a.txt" },
-        { ...base, fetchImpl: async () => new Response("text", { headers: { "Content-Type": "text/plain" } }) }
+        {
+          ...base,
+          fetchImpl: async () =>
+            new Response("text", { headers: { "Content-Type": "text/plain" } }),
+        }
       )
     ).rejects.toThrow(/Content-Type/);
     await expect(
@@ -46,7 +58,12 @@ describe("Notion asset ingestion", () => {
         {
           ...base,
           fetchImpl: async () =>
-            new Response("", { headers: { "Content-Type": "image/png", "Content-Length": "10485761" } }),
+            new Response("", {
+              headers: {
+                "Content-Type": "image/png",
+                "Content-Length": "10485761",
+              },
+            }),
         }
       )
     ).rejects.toThrow(/10 MiB/);

@@ -37,7 +37,10 @@ const pages = defineCollection({
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
 const courses = defineCollection({
-  loader: glob({ pattern: "courses/*.json", base: "./src/content/generated-notion" }),
+  loader: glob({
+    pattern: "courses/*.json",
+    base: "./src/content/generated-notion",
+  }),
   schema: z.object({
     id: z.string(),
     title: z.string(),
@@ -52,7 +55,10 @@ const courses = defineCollection({
 });
 
 const lessons = defineCollection({
-  loader: glob({ pattern: "lessons/**/*.md", base: "./src/content/generated-notion" }),
+  loader: glob({
+    pattern: "lessons/**/*.md",
+    base: "./src/content/generated-notion",
+  }),
   schema: z.object({
     notionId: z.string(),
     title: z.string(),

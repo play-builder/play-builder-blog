@@ -51,23 +51,35 @@ export function validateAssetUrl(raw: string): URL {
     host.startsWith("fd") ||
     host.startsWith("fe80:");
   if (url.protocol !== "https:") throw new Error("Asset URL must use HTTPS");
-  if (url.username || url.password || privateHost) throw new Error("Asset URL must use a public host");
+  if (url.username || url.password || privateHost)
+    throw new Error("Asset URL must use a public host");
   return url;
 }
 
 export async function ingestAsset(input: AssetInput, deps: AssetDependencies) {
   const url = validateAssetUrl(input.url);
   const response = await (deps.fetchImpl ?? fetch)(url);
-  if (!response.ok) throw new Error(`Asset download failed with status ${response.status}`);
-  const contentType = response.headers.get("Content-Type")?.split(";", 1)[0].trim().toLowerCase();
+  if (!response.ok)
+    throw new Error(`Asset download failed with status ${response.status}`);
+  const contentType = response.headers
+    .get("Content-Type")
+    ?.split(";", 1)[0]
+    .trim()
+    .toLowerCase();
   const extension = contentType ? TYPES.get(contentType) : undefined;
-  if (!extension) throw new Error(`Unsupported asset Content-Type: ${contentType ?? "missing"}`);
+  if (!extension)
+    throw new Error(
+      `Unsupported asset Content-Type: ${contentType ?? "missing"}`
+    );
   const declared = Number(response.headers.get("Content-Length") ?? 0);
   if (declared > MAX_BYTES) throw new Error("Asset exceeds 10 MiB");
   const bytes = new Uint8Array(await response.arrayBuffer());
   if (bytes.byteLength > MAX_BYTES) throw new Error("Asset exceeds 10 MiB");
   const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
-  const hash = [...digest].map(value => value.toString(16).padStart(2, "0")).join("").slice(0, 16);
+  const hash = [...digest]
+    .map(value => value.toString(16).padStart(2, "0"))
+    .join("")
+    .slice(0, 16);
   const pageId = safePart(input.pageId);
   const filename = `${safePart(input.blockId)}-${hash}.${extension}`;
   const outputPath = path.join(deps.outputRoot, pageId, filename);

@@ -66,7 +66,8 @@ const homePath = getRelativeLocaleUrl(locale, "");
         and Web3 infrastructure.
       </p>
       <p class="mt-2">
-        Explore production-focused Tech Posts, follow hands-on Courses, or check the
+        Explore production-focused Tech Posts, follow hands-on Courses, or check
+        the
         <LinkButton
           class="hover:text-accent underline decoration-dashed underline-offset-4"
           href={getRelativeLocaleUrl(locale, "about")}
@@ -75,9 +76,18 @@ const homePath = getRelativeLocaleUrl(locale, "");
         </LinkButton> page for more info.
       </p>
       <div class="mt-6 flex flex-wrap gap-3">
-        <a class="bg-accent text-accent-foreground rounded-lg px-4 py-2 font-semibold" href="/posts/">Tech Posts</a>
-        <a class="border-border rounded-lg border px-4 py-2 font-semibold" href="/courses/">Courses</a>
-        <a class="border-border rounded-lg border px-4 py-2" href="https://playbuilder.xyz">Profile website</a>
+        <a
+          class="bg-accent text-accent-foreground rounded-lg px-4 py-2 font-semibold"
+          href="/posts/">Tech Posts</a
+        >
+        <a
+          class="border-border rounded-lg border px-4 py-2 font-semibold"
+          href="/courses/">Courses</a
+        >
+        <a
+          class="border-border rounded-lg border px-4 py-2"
+          href="https://playbuilder.xyz">Profile website</a
+        >
       </div>
       {
         socials.length > 0 && (
@@ -129,13 +139,22 @@ const homePath = getRelativeLocaleUrl(locale, "");
 
     {
       courseCatalog.length > 0 && (
-        <section id="published-courses" class="border-border border-t pt-12 pb-6">
+        <section
+          id="published-courses"
+          class="border-border border-t pt-12 pb-6"
+        >
           <div class="flex items-center justify-between">
-            <h2 class="text-2xl font-semibold tracking-wide">Published Courses</h2>
-            <a class="hover:text-accent" href="/courses/">All Courses →</a>
+            <h2 class="text-2xl font-semibold tracking-wide">
+              Published Courses
+            </h2>
+            <a class="hover:text-accent" href="/courses/">
+              All Courses →
+            </a>
           </div>
           <div class="mt-6 grid gap-5 md:grid-cols-2">
-            {courseCatalog.slice(0, 2).map(catalog => <CourseCard {catalog} />)}
+            {courseCatalog.slice(0, 2).map(catalog => (
+              <CourseCard {catalog} />
+            ))}
           </div>
         </section>
       )

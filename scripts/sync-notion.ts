@@ -16,7 +16,8 @@ async function writeTree(target: string, files: GeneratedFiles) {
   await mkdir(stage, { recursive: true });
   for (const [relative, contents] of Object.entries(files)) {
     const destination = path.join(stage, relative);
-    if (!destination.startsWith(`${stage}${path.sep}`)) throw new Error(`Unsafe generated path: ${relative}`);
+    if (!destination.startsWith(`${stage}${path.sep}`))
+      throw new Error(`Unsafe generated path: ${relative}`);
     await mkdir(path.dirname(destination), { recursive: true });
     await writeFile(destination, contents);
   }
@@ -35,18 +36,28 @@ async function writeTree(target: string, files: GeneratedFiles) {
   }
 }
 
-const replaceGenerated = async (files: GeneratedFiles, assets: GeneratedFiles = {}) => {
+const replaceGenerated = async (
+  files: GeneratedFiles,
+  assets: GeneratedFiles = {}
+) => {
   await writeTree(contentTarget, files);
   await writeTree(assetTarget, assets);
 };
 
 async function fixtureClient() {
   const base = path.join(root, "tests/fixtures/notion");
-  const courses = JSON.parse(await readFile(path.join(base, "courses.json"), "utf8"));
-  const lessons = JSON.parse(await readFile(path.join(base, "lessons.json"), "utf8"));
-  const markdown = JSON.parse(await readFile(path.join(base, "lesson-markdown.json"), "utf8"));
+  const courses = JSON.parse(
+    await readFile(path.join(base, "courses.json"), "utf8")
+  );
+  const lessons = JSON.parse(
+    await readFile(path.join(base, "lessons.json"), "utf8")
+  );
+  const markdown = JSON.parse(
+    await readFile(path.join(base, "lesson-markdown.json"), "utf8")
+  );
   return {
-    queryDataSource: async (id: string) => (id === "courses" ? courses : lessons),
+    queryDataSource: async (id: string) =>
+      id === "courses" ? courses : lessons,
     retrievePageMarkdown: async (id: string) => markdown[id],
   };
 }
@@ -55,16 +66,24 @@ async function main() {
   const fixture = process.argv.includes("--fixture");
   if (!fixture && process.env.NOTION_SYNC_ENABLED !== "true") {
     await replaceGenerated({});
-    console.log("Notion sync disabled; generated course content is empty.");
+    process.stdout.write("Notion sync disabled; generated course content is empty.\n");
     return;
   }
   const token = process.env.NOTION_TOKEN ?? "";
-  const coursesDataSourceId = fixture ? "courses" : (process.env.NOTION_COURSES_DATA_SOURCE_ID ?? "");
-  const lessonsDataSourceId = fixture ? "lessons" : (process.env.NOTION_LESSONS_DATA_SOURCE_ID ?? "");
+  const coursesDataSourceId = fixture
+    ? "courses"
+    : (process.env.NOTION_COURSES_DATA_SOURCE_ID ?? "");
+  const lessonsDataSourceId = fixture
+    ? "lessons"
+    : (process.env.NOTION_LESSONS_DATA_SOURCE_ID ?? "");
   if (!fixture && (!token || !coursesDataSourceId || !lessonsDataSourceId)) {
-    throw new Error("NOTION_TOKEN and both NOTION_*_DATA_SOURCE_ID values are required when sync is enabled");
+    throw new Error(
+      "NOTION_TOKEN and both NOTION_*_DATA_SOURCE_ID values are required when sync is enabled"
+    );
   }
-  const client = fixture ? await fixtureClient() : new NotionReadClient({ token });
+  const client = fixture
+    ? await fixtureClient()
+    : new NotionReadClient({ token });
   const assetBytes = new Map<string, Uint8Array>();
   const summary = await syncNotionCourses(
     { coursesDataSourceId, lessonsDataSourceId },
@@ -74,22 +93,30 @@ async function main() {
       ...(fixture
         ? {}
         : {
-            ingestRemoteAsset: async (input: { pageId: string; blockId: string; url: string }) => {
+            ingestRemoteAsset: async (input: {
+              pageId: string;
+              blockId: string;
+              url: string;
+            }) => {
               const result = await ingestAsset(input, {
                 outputRoot: "/",
-                writeFile: async (outputPath, bytes) => void assetBytes.set(outputPath, bytes),
+                writeFile: async (outputPath, bytes) =>
+                  void assetBytes.set(outputPath, bytes),
               });
-              return { publicPath: result.publicPath, bytes: assetBytes.get(result.outputPath)! };
+              return {
+                publicPath: result.publicPath,
+                bytes: assetBytes.get(result.outputPath)!,
+              };
             },
           }),
     }
   );
-  console.log(
-    `Notion sync complete: ${summary.publishedCourses} courses, ${summary.publishedLessons} lessons; excluded ${summary.excludedCourses} courses and ${summary.excludedLessons} lessons.`
+  process.stdout.write(
+    `Notion sync complete: ${summary.publishedCourses} courses, ${summary.publishedLessons} lessons; excluded ${summary.excludedCourses} courses and ${summary.excludedLessons} lessons.\n`
   );
 }
 
 main().catch(error => {
-  console.error(error instanceof Error ? error.message : "Notion sync failed");
+  process.stderr.write(`${error instanceof Error ? error.message : "Notion sync failed"}\n`);
   process.exitCode = 1;
 });

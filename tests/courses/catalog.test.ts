@@ -15,7 +15,12 @@ const courses = [
     },
   },
 ];
-const lesson = (slug: string, module: string, moduleOrder: number, lessonOrder: number) => ({
+const lesson = (
+  slug: string,
+  module: string,
+  moduleOrder: number,
+  lessonOrder: number
+) => ({
   id: `ethereum-validator-operations/${slug}`,
   data: {
     notionId: `notion-${slug}`,
@@ -39,14 +44,25 @@ describe("buildCourseCatalog", () => {
       lesson("verify", "Setup", 1, 2),
       lesson("install", "Setup", 1, 1),
     ]);
-    expect(catalog[0].modules.map(item => item.name)).toEqual(["Setup", "Operations"]);
-    expect(catalog[0].modules[0].lessons.map(item => item.data.slug)).toEqual(["install", "verify"]);
-    expect(catalog[0].lessonNavigation.verify).toEqual({ previous: "install", next: "monitor" });
+    expect(catalog[0].modules.map(item => item.name)).toEqual([
+      "Setup",
+      "Operations",
+    ]);
+    expect(catalog[0].modules[0].lessons.map(item => item.data.slug)).toEqual([
+      "install",
+      "verify",
+    ]);
+    expect(catalog[0].lessonNavigation.verify).toEqual({
+      previous: "install",
+      next: "monitor",
+    });
   });
 
   it("rejects a lesson whose course slug is not present", () => {
     const orphan = lesson("orphan", "Setup", 1, 1);
     orphan.data.courseSlug = "missing-course";
-    expect(() => buildCourseCatalog(courses, [orphan])).toThrow(/unknown course/);
+    expect(() => buildCourseCatalog(courses, [orphan])).toThrow(
+      /unknown course/
+    );
   });
 });

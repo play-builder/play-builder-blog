@@ -6,7 +6,7 @@
 
 **Play Builder** is the engineering blog of **Kai** — practical lessons from real-world production environments, covering cloud-native infrastructure, blockchain operations, and distributed systems.
 
-🔗 **Live site:** [play-builder.pages.dev](https://play-builder.pages.dev/)
+🔗 **Live site:** [blog.playbuilder.xyz](https://blog.playbuilder.xyz/)
 
 ## ✍️ What I Write About
 
@@ -23,7 +23,9 @@ Recent topics include Kinesis hot-shard handling and iterator-age monitoring, ba
 - [Astro](https://astro.build/) with the [AstroPaper](https://github.com/satnaing/astro-paper) theme
 - [Tailwind CSS](https://tailwindcss.com/) + TypeScript
 - [Pagefind](https://pagefind.app/) static search
-- Markdown/MDX content with type-safe frontmatter, RSS feed, sitemap, and dynamic OG image generation
+- Markdown/MDX Tech Posts plus build-time Notion Courses
+- Cloudflare Access-protected manual Production publishing
+- Type-safe frontmatter, RSS feed, sitemap, and dynamic OG image generation
 
 ## 🚀 Getting Started
 
@@ -31,6 +33,8 @@ Recent topics include Kinesis hot-shard handling and iterator-age monitoring, ba
 pnpm install      # install dependencies
 pnpm dev          # start dev server at localhost:4321
 pnpm build        # type-check, build, and index search
+pnpm build:fixture # build two deterministic sample lessons without Notion credentials
+pnpm test         # run unit and generated-HTML contract tests
 pnpm preview      # preview the production build locally
 ```
 
@@ -61,6 +65,14 @@ draft: false
 ```
 
 Posts with `draft: true` are excluded from the build. Site-wide settings (title, socials, pagination, features) live in `astro-paper.config.ts`.
+
+## 🎓 Publishing a Course
+
+Course metadata and lesson bodies are maintained as pages inside private Notion databases. Notion pages do not need to be published to the web. A read-only Notion connection reads only pages explicitly shared with it.
+
+Changing Notion does not immediately change the site. After setting the parent Course and intended Lessons to `Published`, an authorized administrator opens `/admin/publish/` and requests a Cloudflare Pages build. The previous Production deployment remains active when validation or build fails.
+
+See [`docs/notion-cloudflare-course-publishing.md`](docs/notion-cloudflare-course-publishing.md) for the complete Notion schema, secrets, Cloudflare Access policy, first deployment, publishing, validation, and rollback procedures.
 
 ## 🙏 Credits
 

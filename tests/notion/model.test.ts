@@ -11,8 +11,14 @@ const coursePage = () => ({
   last_edited_time: "2026-08-25T06:00:00.000Z",
   properties: {
     Title: { type: "title", title: richText("Ethereum Validator Operations") },
-    Slug: { type: "rich_text", rich_text: richText("ethereum-validator-operations") },
-    Description: { type: "rich_text", rich_text: richText("Operate validators safely") },
+    Slug: {
+      type: "rich_text",
+      rich_text: richText("ethereum-validator-operations"),
+    },
+    Description: {
+      type: "rich_text",
+      rich_text: richText("Operate validators safely"),
+    },
     Order: { type: "number", number: 1 },
     Status: { type: "status", status: { name: "Published" } },
     Tags: { type: "multi_select", multi_select: [{ name: "Ethereum" }] },
@@ -25,7 +31,10 @@ const lessonPage = () => ({
   properties: {
     Title: { type: "title", title: richText("Install clients") },
     Slug: { type: "rich_text", rich_text: richText("install-clients") },
-    Description: { type: "rich_text", rich_text: richText("Install execution and consensus clients") },
+    Description: {
+      type: "rich_text",
+      rich_text: richText("Install execution and consensus clients"),
+    },
     Course: { type: "relation", relation: [{ id: "course-1" }] },
     Module: { type: "select", select: { name: "Setup" } },
     ModuleOrder: { type: "number", number: 1 },

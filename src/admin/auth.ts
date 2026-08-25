@@ -6,7 +6,10 @@ export type AdminEnv = {
   ADMIN_ALLOWED_IPS: string;
 };
 export type AdminIdentity = { email: string; sub: string };
-export type VerifyAccessJwt = (token: string, env: AdminEnv) => Promise<JWTPayload>;
+export type VerifyAccessJwt = (
+  token: string,
+  env: AdminEnv
+) => Promise<JWTPayload>;
 
 export class AdminAuthorizationError extends Error {
   readonly status = 403;
@@ -17,16 +20,28 @@ const deny = (message: string): never => {
 };
 
 const normalizeTeamDomain = (value: string) =>
-  value.trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+  value
+    .trim()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/+$/, "");
+
+export const parseAccessAudiences = (value: string) =>
+  value
+    .split(",")
+    .map(item => item.trim())
+    .filter(Boolean);
 
 export const verifyAccessJwt: VerifyAccessJwt = async (token, env) => {
   const domain = normalizeTeamDomain(env.CF_ACCESS_TEAM_DOMAIN);
-  if (!domain.endsWith(".cloudflareaccess.com")) deny("Invalid Access team domain configuration");
+  if (!domain.endsWith(".cloudflareaccess.com"))
+    deny("Invalid Access team domain configuration");
+  const audiences = parseAccessAudiences(env.CF_ACCESS_AUD);
+  if (!audiences.length) deny("Invalid Access audience configuration");
   const issuer = `https://${domain}`;
   const jwks = createRemoteJWKSet(new URL(`${issuer}/cdn-cgi/access/certs`));
   const { payload } = await jwtVerify(token, jwks, {
     issuer,
-    audience: env.CF_ACCESS_AUD,
+    audience: audiences,
   });
   return payload;
 };
@@ -37,18 +52,28 @@ export async function authorizeAdminRequest(
   verifier: VerifyAccessJwt = verifyAccessJwt
 ): Promise<AdminIdentity> {
   const url = new URL(request.url);
-  if (url.protocol !== "https:" || url.hostname !== "blog.playbuilder.xyz") deny("Admin custom hostname required");
+  if (url.protocol !== "https:" || url.hostname !== "blog.playbuilder.xyz")
+    deny("Admin custom hostname required");
 
-  const allowedIps = new Set(env.ADMIN_ALLOWED_IPS.split(",").map(value => value.trim()).filter(Boolean));
+  const allowedIps = new Set(
+    env.ADMIN_ALLOWED_IPS.split(",")
+      .map(value => value.trim())
+      .filter(Boolean)
+  );
   const connectingIp = request.headers.get("CF-Connecting-IP")?.trim();
-  if (!connectingIp || !allowedIps.has(connectingIp)) deny("Source IP is not allowed");
+  if (!connectingIp || !allowedIps.has(connectingIp))
+    deny("Source IP is not allowed");
 
   if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
-    if (request.headers.get("Origin") !== "https://blog.playbuilder.xyz") deny("Request origin is not allowed");
+    if (request.headers.get("Origin") !== "https://blog.playbuilder.xyz")
+      deny("Request origin is not allowed");
   }
 
   const token = request.headers.get("Cf-Access-Jwt-Assertion")?.trim();
-  if (!token) throw new AdminAuthorizationError("Cloudflare Access assertion is required");
+  if (!token)
+    throw new AdminAuthorizationError(
+      "Cloudflare Access assertion is required"
+    );
   let payload: JWTPayload;
   try {
     payload = await verifier(token, env);
@@ -57,12 +82,21 @@ export async function authorizeAdminRequest(
   }
   const email = payload.email;
   const sub = payload.sub;
-  if (typeof email === "string" && typeof sub === "string") return { email, sub };
-  throw new AdminAuthorizationError("Cloudflare Access identity claims are incomplete");
+  if (typeof email === "string" && typeof sub === "string")
+    return { email, sub };
+  throw new AdminAuthorizationError(
+    "Cloudflare Access identity claims are incomplete"
+  );
 }
 
 export const forbiddenResponse = () =>
   Response.json(
     { error: "forbidden" },
-    { status: 403, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } }
+    {
+      status: 403,
+      headers: {
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+      },
+    }
   );

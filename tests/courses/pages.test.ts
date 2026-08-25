@@ -14,11 +14,15 @@ describe("course static pages", () => {
   it("renders modules and lesson links on the course page", async () => {
     const page = await html("courses/ethereum-validator-operations/index.html");
     expect(page).toContain("Setup");
-    expect(page).toContain('href="/courses/ethereum-validator-operations/install-clients/"');
+    expect(page).toContain(
+      'href="/courses/ethereum-validator-operations/install-clients/"'
+    );
   });
 
   it("marks the current lesson and Pagefind content type", async () => {
-    const page = await html("courses/ethereum-validator-operations/install-clients/index.html");
+    const page = await html(
+      "courses/ethereum-validator-operations/install-clients/index.html"
+    );
     expect(page).toContain('aria-current="page"');
     expect(page).toContain('data-pagefind-filter="content:course"');
     expect(page).toContain("Install the execution and consensus clients.");

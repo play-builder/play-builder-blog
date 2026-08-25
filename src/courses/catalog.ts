@@ -38,15 +38,23 @@ export type CourseCatalog = {
   lessonNavigation: Record<string, { previous?: string; next?: string }>;
 };
 
-export function buildCourseCatalog(courses: CourseEntry[], lessons: LessonEntry[]): CourseCatalog[] {
+export function buildCourseCatalog(
+  courses: CourseEntry[],
+  lessons: LessonEntry[]
+): CourseCatalog[] {
   const courseSlugs = new Set(courses.map(course => course.data.slug));
   for (const lesson of lessons) {
     if (!courseSlugs.has(lesson.data.courseSlug)) {
-      throw new Error(`Lesson ${lesson.id} references unknown course ${lesson.data.courseSlug}`);
+      throw new Error(
+        `Lesson ${lesson.id} references unknown course ${lesson.data.courseSlug}`
+      );
     }
   }
   return [...courses]
-    .sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title))
+    .sort(
+      (a, b) =>
+        a.data.order - b.data.order || a.data.title.localeCompare(b.data.title)
+    )
     .map(course => {
       const ordered = lessons
         .filter(lesson => lesson.data.courseSlug === course.data.slug)
@@ -56,7 +64,10 @@ export function buildCourseCatalog(courses: CourseEntry[], lessons: LessonEntry[
             a.data.lessonOrder - b.data.lessonOrder ||
             a.data.title.localeCompare(b.data.title)
         );
-      const grouped = new Map<string, { name: string; order: number; lessons: LessonEntry[] }>();
+      const grouped = new Map<
+        string,
+        { name: string; order: number; lessons: LessonEntry[] }
+      >();
       for (const lesson of ordered) {
         const module = grouped.get(lesson.data.module) ?? {
           name: lesson.data.module,
@@ -69,7 +80,9 @@ export function buildCourseCatalog(courses: CourseEntry[], lessons: LessonEntry[
       const lessonNavigation: CourseCatalog["lessonNavigation"] = {};
       ordered.forEach((lesson, index) => {
         lessonNavigation[lesson.data.slug] = {
-          ...(ordered[index - 1] ? { previous: ordered[index - 1].data.slug } : {}),
+          ...(ordered[index - 1]
+            ? { previous: ordered[index - 1].data.slug }
+            : {}),
           ...(ordered[index + 1] ? { next: ordered[index + 1].data.slug } : {}),
         };
       });

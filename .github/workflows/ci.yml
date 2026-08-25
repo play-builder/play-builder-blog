@@ -36,11 +36,20 @@ jobs:
       - name: "📦 Install dependencies"
         run: pnpm install --frozen-lockfile
 
+      - name: "🧪 Build with deterministic Notion fixtures"
+        run: pnpm run build:fixture
+
+      - name: "🧪 Run tests"
+        run: pnpm run test
+
       - name: "🔎 Lint code"
         run: pnpm run lint
 
       - name: "📝 Checking code format"
         run: pnpm run format:check
 
-      - name: "🚀 Build the project"
+      - name: "🚀 Verify a secret-free default build"
         run: pnpm run build
+
+      - name: "☁️ Type-check Pages Functions"
+        run: pnpm exec tsc -p functions/tsconfig.json --noEmit

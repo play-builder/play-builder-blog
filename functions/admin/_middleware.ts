@@ -1,4 +1,8 @@
-import { authorizeAdminRequest, forbiddenResponse, type AdminEnv } from "../../src/admin/auth";
+import {
+  authorizeAdminRequest,
+  forbiddenResponse,
+  type AdminEnv,
+} from "../../src/admin/auth";
 
 export const onRequest: PagesFunction<AdminEnv> = async context => {
   try {
