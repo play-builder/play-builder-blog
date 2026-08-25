@@ -58,14 +58,14 @@ const homePath = getRelativeLocaleUrl(locale, "");
         <span class="sr-only">RSS Feed</span>
       </a>
 
-      <p>
+      <p class="max-w-5xl leading-7">
         I build and operate mission-critical infrastructure for blockchain
         networks, cloud-native platforms, and distributed systems. Here I share
         practical lessons from real-world production environments—from
         Kubernetes internals and Linux networking to blockchain node operations
         and Web3 infrastructure.
       </p>
-      <p class="mt-2">
+      <p class="mt-2 max-w-5xl leading-7">
         Explore production-focused Tech Posts, follow hands-on Courses, or check
         the
         <LinkButton
@@ -113,7 +113,7 @@ const homePath = getRelativeLocaleUrl(locale, "");
           <h2 class="text-2xl font-semibold tracking-wide">
             {t.home.featured}
           </h2>
-          <ul>
+          <ul class="mt-6 grid items-stretch gap-5 lg:grid-cols-2">
             {featuredPosts.map(data => (
               <Card variant="h3" {...data} />
             ))}
@@ -128,7 +128,7 @@ const homePath = getRelativeLocaleUrl(locale, "");
           <h2 class="text-2xl font-semibold tracking-wide">
             Latest Tech Posts
           </h2>
-          <ul>
+          <ul class="mt-6 grid items-stretch gap-5 lg:grid-cols-2">
             {recentPosts.slice(0, postsConfig.perIndex).map(data => (
               <Card variant="h3" {...data} />
             ))}

@@ -7,7 +7,10 @@ const { catalog, currentSlug } = Astro.props as {
 };
 ---
 
-<nav aria-label="Course curriculum" class="border-border rounded-xl border p-4">
+<nav
+  aria-label="Course curriculum"
+  class="border-border rounded-xl border p-4 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto"
+>
   <a
     class="hover:text-accent font-semibold"
     href={`/courses/${catalog.course.data.slug}/`}>Curriculum</a
@@ -27,7 +30,7 @@ const { catalog, currentSlug } = Astro.props as {
                   currentSlug === lesson.data.slug ? "page" : undefined
                 }
                 class:list={[
-                  "hover:text-accent block rounded-md px-2 py-1.5 text-sm",
+                  "hover:text-accent block rounded-md px-2 py-2 text-sm wrap-break-word",
                   {
                     "bg-accent/10 text-accent font-semibold":
                       currentSlug === lesson.data.slug,

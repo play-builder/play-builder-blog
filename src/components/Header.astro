@@ -49,9 +49,16 @@ const isActive = (path: string) => {
   >
     <a
       href={getRelativeLocaleUrl(locale, "")}
-      class="absolute py-1 text-xl leading-8 font-semibold whitespace-nowrap sm:static sm:my-auto sm:text-2xl sm:leading-none"
+      aria-label={site.title}
+      class="focus-outline absolute overflow-hidden rounded-sm bg-white px-2 py-1 sm:static sm:my-auto"
     >
-      {site.title}
+      <img
+        src={`${import.meta.env.BASE_URL}the-play-builder-pb-logo-transparent.png`}
+        alt=""
+        class="h-8 w-auto sm:h-10"
+        width="1792"
+        height="377"
+      />
     </a>
     <nav
       id="nav-menu"

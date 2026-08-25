@@ -5,6 +5,11 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
+:root {
+  --app-shell-max-width: 90rem;
+  --app-reading-max-width: 64rem;
+}
+
 @layer base {
   * {
     @apply border-border outline-accent/75;
@@ -22,11 +27,19 @@
 }
 
 @utility max-w-app {
-  @apply max-w-3xl;
+  max-width: var(--app-shell-max-width);
+}
+
+@utility app-reading {
+  width: 100%;
+  max-width: var(--app-reading-max-width);
 }
 
 @utility app-layout {
-  @apply max-w-app mx-auto w-full px-4;
+  width: 100%;
+  max-width: var(--app-shell-max-width);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 2rem);
 }
 
 @utility active-nav {

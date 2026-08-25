@@ -11,6 +11,12 @@ describe("course static pages", () => {
     );
   });
 
+  it("keeps the course catalog focused on published courses", async () => {
+    expect(await html("courses/index.html")).not.toContain(
+      "Step-by-step labs and operational guides maintained in Notion"
+    );
+  });
+
   it("renders modules and lesson links on the course page", async () => {
     const page = await html("courses/ethereum-validator-operations/index.html");
     expect(page).toContain("Setup");

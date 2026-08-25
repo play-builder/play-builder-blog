@@ -6,17 +6,17 @@ const { course, modules, lessons } = catalog;
 ---
 
 <article
-  class="border-border rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-lg"
+  class="border-border h-full min-w-0 rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-lg sm:p-6"
 >
   <div class="text-accent mb-2 text-sm font-semibold tracking-wide uppercase">
     Course
   </div>
-  <h2 class="text-xl font-semibold">
+  <h2 class="text-xl font-semibold wrap-break-word">
     <a href={`/courses/${course.data.slug}/`} class="hover:text-accent"
       >{course.data.title}</a
     >
   </h2>
-  <p class="mt-2 opacity-80">{course.data.description}</p>
+  <p class="mt-3 leading-7 opacity-80">{course.data.description}</p>
   <div class="mt-4 flex flex-wrap gap-2 text-sm">
     {
       course.data.tags.map(tag => (

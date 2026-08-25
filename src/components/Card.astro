@@ -13,19 +13,26 @@ const { variant: Heading = "h2", id, data, filePath } = Astro.props;
 const { title, description, ...props } = data;
 ---
 
-<li class="my-6">
-  <a
-    href={getPostUrl(id, filePath, Astro.currentLocale)}
-    class:list={[
-      "text-accent inline-block text-lg font-medium",
-      "decoration-dashed underline-offset-4 hover:underline",
-      "focus-visible:no-underline focus-visible:underline-offset-0",
-    ]}
+<li class="h-full min-w-0">
+  <article
+    class="border-border h-full rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-lg sm:p-6"
   >
-    <Heading transition:name={toTransitionName(title)}>
-      {title}
-    </Heading>
-  </a>
-  <Datetime {...props} />
-  <p>{description}</p>
+    <a
+      href={getPostUrl(id, filePath, Astro.currentLocale)}
+      class:list={[
+        "text-accent inline-block text-lg font-semibold sm:text-xl",
+        "decoration-dashed underline-offset-4 hover:underline",
+        "focus-visible:no-underline focus-visible:underline-offset-0",
+      ]}
+    >
+      <Heading
+        class="wrap-break-word"
+        transition:name={toTransitionName(title)}
+      >
+        {title}
+      </Heading>
+    </a>
+    <Datetime {...props} />
+    <p class="mt-3 leading-7 opacity-80">{description}</p>
+  </article>
 </li>

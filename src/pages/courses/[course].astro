@@ -36,8 +36,8 @@ const { catalog } = Astro.props;
         >{catalog.course.data.title}</span
       >
     </nav>
-    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <article>
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] xl:gap-14">
+      <article class="min-w-0">
         <p class="text-accent font-semibold">Course</p>
         <h1 class="mt-2 text-3xl font-bold sm:text-4xl">
           {catalog.course.data.title}
@@ -52,7 +52,7 @@ const { catalog } = Astro.props;
                 {module.lessons.map(lesson => (
                   <li>
                     <a
-                      class="hover:text-accent flex justify-between p-4"
+                      class="hover:text-accent flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between"
                       href={`/courses/${catalog.course.data.slug}/${lesson.data.slug}/`}
                     >
                       <span>{lesson.data.title}</span>
@@ -69,7 +69,9 @@ const { catalog } = Astro.props;
           ))
         }
       </article>
-      <aside><CourseSidebar {catalog} /></aside>
+      <aside class="hidden self-start lg:sticky lg:top-6 lg:block">
+        <CourseSidebar {catalog} />
+      </aside>
     </div>
   </main>
   <Footer />
