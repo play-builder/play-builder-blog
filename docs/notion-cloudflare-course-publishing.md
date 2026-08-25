@@ -185,7 +185,6 @@ Cloudflare Dashboard에서 `Workers & Pages → play-builder-blog → Settings`�
 | `NOTION_TOKEN`                     | Secret 필수 | Notion installation token     |
 | `CF_ACCESS_TEAM_DOMAIN`            | Variable    | `팀이름.cloudflareaccess.com` |
 | `CF_ACCESS_AUD`                    | Variable    | Access application AUD        |
-| `ADMIN_ALLOWED_IPS`                | Variable    | 허용 IP, 여러 개면 comma 구분 |
 | `CLOUDFLARE_PAGES_DEPLOY_HOOK_URL` | Secret 필수 | Production Deploy Hook URL    |
 
 Preview에서 실제 Notion content를 노출하지 않으려면 Preview의 `NOTION_SYNC_ENABLED`는 `false`로 둔다.
@@ -202,7 +201,7 @@ Deploy Hook은 인증 header가 없는 bearer URL과 같으므로 URL을 아는 
 
 ## 6. Admin 접근 통제
 
-**핵심 요약:** `/admin`은 Cloudflare Access의 로그인 정책과 Pages Function의 재검증을 모두 통과해야 한다. Access 정책에서 email과 IP를 둘 다 Include로 넣으면 OR가 되어 보안 요구를 충족하지 못한다.
+**핵심 요약:** `/admin`은 Cloudflare Access의 정확한 관리자 email 정책과 Pages Function의 JWT 재검증을 모두 통과해야 한다. IP 기반 제한은 사용하지 않으므로 관리자는 네트워크 변경과 관계없이 로그인할 수 있다.
 
 ### 6.1 Self-hosted application
 
@@ -220,28 +219,11 @@ Deploy Hook은 인증 header가 없는 bearer URL과 같으므로 URL을 아는 
 
 정책은 다음과 같이 구성한다.
 
-| 동작    | Selector              | 값                                          |
-| ------- | --------------------- | ------------------------------------------- |
-| Include | Emails                | 본인의 정확한 관리자 email                  |
-| Require | IP ranges             | 고정 공인 IPv4 `/32` 또는 IPv6 `/128`       |
-| Require | Authentication method | IdP에서 MFA를 증명하는 방식, 사용 가능할 때 |
+| 동작    | Selector | 값                         |
+| ------- | -------- | -------------------------- |
+| Include | Emails   | 본인의 정확한 관리자 email |
 
-Access의 여러 Include rule은 OR로 평가된다. 따라서 IP를 두 번째 Include로 넣지 말고 Require로 넣는다. Bypass/Service Auth recovery policy를 만들지 않는다.
-
-`ADMIN_ALLOWED_IPS`에는 CIDR가 아니라 실제 exact IP 문자열을 넣는다.
-
-```text
-203.0.113.10
-203.0.113.10,2001:db8::10
-```
-
-현재 공인 IP 확인 예시:
-
-```bash
-curl -s https://api.ipify.org
-```
-
-동적 IP가 바뀌면 Access policy의 `/32`와 `ADMIN_ALLOWED_IPS`를 모두 갱신해야 한다. 고정 IP가 없다면 WARP device posture 같은 대안 설계를 먼저 확정해야 하며, 임의로 IP Require를 제거하지 않는다.
+Access 정책에는 관리자 email만 Include하고 IP selector와 Bypass/Service Auth recovery policy를 만들지 않는다. 이 구성은 네트워크 위치를 추가 인증 요소로 사용하지 않으므로 관리자 email과 IdP 계정을 강하게 보호해야 한다. 기존 Pages 변수 `ADMIN_ALLOWED_IPS`는 더 이상 사용하지 않으며 삭제할 수 있다.
 
 ### 6.3 AUD와 team domain
 
@@ -252,7 +234,6 @@ curl -s https://api.ipify.org
 Pages middleware는 다음 조건을 모두 검증한다.
 
 - hostname이 정확히 `blog.playbuilder.xyz`
-- source IP가 `ADMIN_ALLOWED_IPS`의 exact 값
 - POST Origin이 `https://blog.playbuilder.xyz`
 - `Cf-Access-Jwt-Assertion`의 서명, issuer, audience, expiry
 - JWT에 `email`, `sub` claim 존재
@@ -288,8 +269,8 @@ Cloudflare 공식 문서도 production branch 자동 배포를 끌 수 있다고
 4. 작업 중에는 `Status=Draft`를 유지한다.
 5. Course가 `Published`인지 확인한다.
 6. 공개할 모든 Lesson을 검토하고 `Status=Published`로 바꾼다.
-7. 허용된 고정 IP 네트워크에서 `https://blog.playbuilder.xyz/admin/publish/`를 연다.
-8. Cloudflare Access 로그인과 MFA를 통과한다.
+7. 브라우저에서 `https://blog.playbuilder.xyz/admin/publish/`를 연다.
+8. Cloudflare Access에서 등록된 관리자 email로 로그인한다.
 9. `Publish to Production`을 누르고 확인 dialog를 승인한다.
 10. `Deployment requested`가 표시되면 Cloudflare Pages Deployments를 연다.
 11. build status가 Success가 될 때까지 확인한다.
@@ -301,8 +282,8 @@ Publish 버튼 성공은 배포 완료가 아니라 Deploy Hook이 요청을 받
 
 | 증상                       | 먼저 확인할 항목                                                        |
 | -------------------------- | ----------------------------------------------------------------------- |
-| Admin login 화면도 안 나옴 | DNS proxy, Access application path, 허용 IP CIDR                        |
-| Access 통과 후 403         | `ADMIN_ALLOWED_IPS`, Pages custom hostname, AUD/team domain             |
+| Admin login 화면도 안 나옴 | DNS proxy, Access application path, email Allow policy                  |
+| Access 통과 후 403         | Pages custom hostname, Access assertion, AUD/team domain                |
 | Publish 502                | Deploy Hook 삭제/회전 여부, runtime Secret, Pages incident              |
 | Build 401                  | `NOTION_TOKEN` 값과 token 회전 여부                                     |
 | Build 404                  | data source ID인지, `Add connections`가 되었는지                        |

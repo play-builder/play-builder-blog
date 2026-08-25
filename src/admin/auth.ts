@@ -3,7 +3,6 @@ import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
 export type AdminEnv = {
   CF_ACCESS_TEAM_DOMAIN: string;
   CF_ACCESS_AUD: string;
-  ADMIN_ALLOWED_IPS: string;
 };
 export type AdminIdentity = { email: string; sub: string };
 export type VerifyAccessJwt = (
@@ -54,15 +53,6 @@ export async function authorizeAdminRequest(
   const url = new URL(request.url);
   if (url.protocol !== "https:" || url.hostname !== "blog.playbuilder.xyz")
     deny("Admin custom hostname required");
-
-  const allowedIps = new Set(
-    env.ADMIN_ALLOWED_IPS.split(",")
-      .map(value => value.trim())
-      .filter(Boolean)
-  );
-  const connectingIp = request.headers.get("CF-Connecting-IP")?.trim();
-  if (!connectingIp || !allowedIps.has(connectingIp))
-    deny("Source IP is not allowed");
 
   if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
     if (request.headers.get("Origin") !== "https://blog.playbuilder.xyz")

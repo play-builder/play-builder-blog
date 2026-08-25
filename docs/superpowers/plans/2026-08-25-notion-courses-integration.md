@@ -4,7 +4,7 @@
 
 **Goal:** 개인 Notion의 Courses/Lessons 데이터베이스 페이지를 수동 Publish 시점에만 `blog.playbuilder.xyz/courses/*` 정적 페이지로 배포하고, 관리자 게시 화면을 Cloudflare Access와 애플리케이션 검증으로 보호한다.
 
-**Architecture:** Cloudflare Pages 빌드가 Notion API를 읽어 전용 generated content/assets 디렉터리를 만든 뒤 Astro가 정적 HTML을 생성한다. `/admin/publish/`는 Pages Function이 Access JWT, hostname, origin, source IP를 검증한 뒤 서버 측에서 Deploy Hook을 호출하며, Notion 저장 자체는 배포를 시작하지 않는다.
+**Architecture:** Cloudflare Pages 빌드가 Notion API를 읽어 전용 generated content/assets 디렉터리를 만든 뒤 Astro가 정적 HTML을 생성한다. `/admin/publish/`는 Pages Function이 Access JWT, hostname, origin을 검증한 뒤 서버 측에서 Deploy Hook을 호출하며, Notion 저장 자체는 배포를 시작하지 않는다.
 
 **Tech Stack:** Astro 6.4.2, TypeScript 6, Node.js >=22.12, pnpm, Vitest 4.1.11, `jose` 6.2.10, `yaml` 2.9.0, Cloudflare Pages Functions, Notion API `2026-03-11`
 
@@ -443,14 +443,13 @@ git commit -m "feat: integrate tech and course navigation"
 **Interfaces:**
 
 - Produces: `authorizeAdminRequest(request, env, verifyJwt): Promise<AdminIdentity>`, `handlePublishRequest(request, env, deps): Promise<Response>`.
-- 환경: `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, `ADMIN_ALLOWED_IPS`, `CLOUDFLARE_PAGES_DEPLOY_HOOK_URL`.
+- 환경: `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, `CLOUDFLARE_PAGES_DEPLOY_HOOK_URL`.
 - JWT adapter는 `jose.createRemoteJWKSet(new URL('https://{team}/cdn-cgi/access/certs'))`와 `jwtVerify`로 issuer/audience/expiry를 검증한다.
 
-- [ ] **Step 1: hostname/origin/IP/JWT/method/hook 오류 실패 테스트를 작성한다.**
+- [ ] **Step 1: hostname/origin/JWT/method/hook 오류 실패 테스트를 작성한다.**
 
 ```ts
 await expect(authorizeAdminRequest(pagesDevRequest, env, verifyJwt)).rejects.toMatchObject({ status: 403 });
-await expect(authorizeAdminRequest(wrongIpRequest, env, verifyJwt)).rejects.toMatchObject({ status: 403 });
 expect((await handlePublishRequest(getRequest, env, deps)).status).toBe(405);
 expect((await handlePublishRequest(validRequest, env, failingHook)).status).toBe(502);
 expect(await successfulResponse.json()).toEqual({ status: "deployment_requested" });
@@ -464,7 +463,7 @@ Expected: admin modules 부재로 FAIL.
 
 - [ ] **Step 3: deny-by-default authorization과 hook 호출을 구현한다.**
 
-허용 hostname/origin은 `https://blog.playbuilder.xyz`, IP는 comma-separated exact IPv4/IPv6, token은 `Cf-Access-Jwt-Assertion`만 사용한다. 응답에는 hook URL, token, upstream body를 포함하지 않고 `Cache-Control: no-store`를 설정한다.
+허용 hostname/origin은 `https://blog.playbuilder.xyz`, token은 `Cf-Access-Jwt-Assertion`만 사용한다. 응답에는 hook URL, token, upstream body를 포함하지 않고 `Cache-Control: no-store`를 설정한다.
 
 - [ ] **Step 4: GREEN을 확인한다.**
 
@@ -554,8 +553,8 @@ CI 순서는 `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm build:fixture`
 4. Cloudflare Pages Production build secrets에 `NOTION_TOKEN`, 두 data source ID, `NOTION_SYNC_ENABLED=true` 설정.
 5. Pages `Settings → Builds & deployments → Deploy hooks`에서 Production/main hook 생성 후 Functions secret으로 저장.
 6. Zero Trust Self-hosted application에 exact `/admin`, wildcard `/admin/*` 두 path 설정.
-7. Allow policy를 `Include: 관리자 email`, `Require: 고정 공인 IP /32 또는 /128`, `Require: MFA`로 설정하고 Bypass를 만들지 않음.
-8. Access application AUD, team domain, exact IP를 Functions secrets/vars로 설정.
+7. Allow policy를 `Include: 관리자 email`로 설정하고 IP selector와 Bypass를 만들지 않음.
+8. Access application AUD와 team domain을 Functions vars로 설정.
 9. Notion에서 Course/Lesson을 Published로 바꾼 뒤 `/admin/publish/` 접속, Publish, Pages deployment 성공, 운영 URL 확인.
 10. 빌드 실패 시 이전 Production 유지 확인, Pages 로그 확인, secret 회전, 이전 deployment rollback 절차.
 
