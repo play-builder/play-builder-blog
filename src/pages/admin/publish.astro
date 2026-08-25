@@ -1,0 +1,60 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout title="Publish Notion Courses | Play Builder" description="Protected deployment console for Play Builder courses.">
+  <main id="main-content" class="app-layout py-12" data-pagefind-ignore>
+    <div class="mx-auto max-w-2xl">
+      <a href="/" class="hover:text-accent text-sm">← Back to Play Builder</a>
+      <div class="border-border mt-6 rounded-2xl border p-6 sm:p-8">
+        <p class="text-accent text-sm font-semibold uppercase tracking-wide">Protected admin</p>
+        <h1 class="mt-2 text-3xl font-bold">Publish current Notion content</h1>
+        <p class="mt-4 opacity-80">This starts a new Cloudflare Pages Production build. It publishes every Course and Lesson whose Notion Status is <strong>Published</strong>.</p>
+        <div class="border-border bg-muted/40 mt-6 rounded-xl border p-4 text-sm">
+          <p><strong>Before publishing</strong></p>
+          <ol class="mt-2 list-decimal space-y-1 pl-5">
+            <li>Review Course and Lesson relations, slugs, and order.</li>
+            <li>Set both parent Course and target Lessons to Published.</li>
+            <li>Expect the build to fail safely if validation or asset download fails.</li>
+          </ol>
+        </div>
+        <form id="publish-form" action="/admin/api/publish" method="post" class="mt-6">
+          <button id="publish-button" class="bg-accent text-accent-foreground w-full rounded-lg px-5 py-3 font-semibold disabled:cursor-wait disabled:opacity-60" type="submit">Publish to Production</button>
+        </form>
+        <div id="publish-status" role="status" aria-live="polite" class="border-border mt-5 hidden rounded-lg border p-4 text-sm"></div>
+        <p class="mt-5 text-sm opacity-70">A <code>deployment_requested</code> response means the build was queued, not completed. Confirm the final result in <a class="text-accent underline" href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer">Cloudflare Pages Deployments</a>.</p>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script is:inline>
+  (() => {
+    const form = document.querySelector("#publish-form");
+    const button = document.querySelector("#publish-button");
+    const status = document.querySelector("#publish-status");
+    if (!(form instanceof HTMLFormElement) || !(button instanceof HTMLButtonElement) || !(status instanceof HTMLElement)) return;
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!window.confirm("Publish all current Notion content marked Published?")) return;
+      button.disabled = true;
+      status.classList.remove("hidden");
+      status.textContent = "Requesting a new Production deployment…";
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          credentials: "same-origin",
+        });
+        const result = await response.json();
+        status.textContent = response.ok && result.status === "deployment_requested"
+          ? "Deployment requested. Check Cloudflare Pages Deployments for build completion."
+          : "The deployment request failed. No new Production deployment was activated.";
+      } catch {
+        status.textContent = "The deployment request could not be sent. The current Production site is unchanged.";
+      } finally {
+        button.disabled = false;
+      }
+    });
+  })();
+</script>

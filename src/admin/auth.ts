@@ -1,0 +1,68 @@
+import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
+
+export type AdminEnv = {
+  CF_ACCESS_TEAM_DOMAIN: string;
+  CF_ACCESS_AUD: string;
+  ADMIN_ALLOWED_IPS: string;
+};
+export type AdminIdentity = { email: string; sub: string };
+export type VerifyAccessJwt = (token: string, env: AdminEnv) => Promise<JWTPayload>;
+
+export class AdminAuthorizationError extends Error {
+  readonly status = 403;
+}
+
+const deny = (message: string): never => {
+  throw new AdminAuthorizationError(message);
+};
+
+const normalizeTeamDomain = (value: string) =>
+  value.trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+
+export const verifyAccessJwt: VerifyAccessJwt = async (token, env) => {
+  const domain = normalizeTeamDomain(env.CF_ACCESS_TEAM_DOMAIN);
+  if (!domain.endsWith(".cloudflareaccess.com")) deny("Invalid Access team domain configuration");
+  const issuer = `https://${domain}`;
+  const jwks = createRemoteJWKSet(new URL(`${issuer}/cdn-cgi/access/certs`));
+  const { payload } = await jwtVerify(token, jwks, {
+    issuer,
+    audience: env.CF_ACCESS_AUD,
+  });
+  return payload;
+};
+
+export async function authorizeAdminRequest(
+  request: Request,
+  env: AdminEnv,
+  verifier: VerifyAccessJwt = verifyAccessJwt
+): Promise<AdminIdentity> {
+  const url = new URL(request.url);
+  if (url.protocol !== "https:" || url.hostname !== "blog.playbuilder.xyz") deny("Admin custom hostname required");
+
+  const allowedIps = new Set(env.ADMIN_ALLOWED_IPS.split(",").map(value => value.trim()).filter(Boolean));
+  const connectingIp = request.headers.get("CF-Connecting-IP")?.trim();
+  if (!connectingIp || !allowedIps.has(connectingIp)) deny("Source IP is not allowed");
+
+  if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+    if (request.headers.get("Origin") !== "https://blog.playbuilder.xyz") deny("Request origin is not allowed");
+  }
+
+  const token = request.headers.get("Cf-Access-Jwt-Assertion")?.trim();
+  if (!token) throw new AdminAuthorizationError("Cloudflare Access assertion is required");
+  let payload: JWTPayload;
+  try {
+    payload = await verifier(token, env);
+  } catch {
+    return deny("Cloudflare Access assertion is invalid");
+  }
+  const email = payload.email;
+  const sub = payload.sub;
+  if (typeof email === "string" && typeof sub === "string") return { email, sub };
+  throw new AdminAuthorizationError("Cloudflare Access identity claims are incomplete");
+}
+
+export const forbiddenResponse = () =>
+  Response.json(
+    { error: "forbidden" },
+    { status: 403, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } }
+  );
