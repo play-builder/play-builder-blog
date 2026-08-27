@@ -51,6 +51,7 @@ export default {
     courseLabel: "강좌",
     curriculum: "커리큘럼",
     courseCurriculum: "강좌 커리큘럼",
+    modules: "모듈",
     lessons: "레슨",
     lesson: "레슨",
     estimatedMinutes: "{{minutes}}분",

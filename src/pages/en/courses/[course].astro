@@ -4,7 +4,7 @@ import CoursePage from "@/components/pages/CoursePage.astro";
 import { getCourseRouteData } from "@/courses/routes";
 
 export const getStaticPaths = (async () =>
-  (await getCourseRouteData("ko")).map(route => ({
+  (await getCourseRouteData("en")).map(route => ({
     params: { course: route.catalog.course.data.slug },
     props: { route },
   }))) satisfies GetStaticPaths;
@@ -12,4 +12,4 @@ export const getStaticPaths = (async () =>
 const { route } = Astro.props;
 ---
 
-<CoursePage locale="ko" route={route} />
+<CoursePage locale="en" route={route} />

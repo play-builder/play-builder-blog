@@ -47,6 +47,7 @@ export interface UIStrings {
     courseLabel: string;
     curriculum: string;
     courseCurriculum: string;
+    modules: string;
     lessons: string;
     lesson: string;
     estimatedMinutes: string;

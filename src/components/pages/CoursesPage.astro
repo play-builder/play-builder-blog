@@ -1,0 +1,52 @@
+---
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import CourseCard from "@/components/courses/CourseCard.astro";
+import type { CourseRouteData } from "@/courses/routes";
+import { coursesListRouteData } from "@/courses/routes";
+import { useTranslations } from "@/i18n";
+import type { ContentLocale } from "@/i18n/locales";
+import { sectionPath } from "@/i18n/urls";
+import Layout from "@/layouts/Layout.astro";
+
+const { locale, routes } = Astro.props as {
+  locale: ContentLocale;
+  routes: CourseRouteData[];
+};
+const t = useTranslations(locale);
+const seo = coursesListRouteData(locale);
+const canonicalPath = sectionPath(locale, "courses");
+---
+
+<Layout
+  locale={locale}
+  title={`${t.course.title} | Play Builder`}
+  description={t.course.description}
+  canonicalURL={new URL(canonicalPath, Astro.site ?? Astro.url).href}
+  alternates={seo.alternates}
+  xDefaultHref={seo.xDefaultHref}
+>
+  <Header locale={locale} languageHref={seo.languageHref} />
+  <main
+    id="main-content"
+    class="app-layout py-10"
+    data-pagefind-filter="content:course"
+  >
+    <p class="text-accent font-semibold">{t.course.eyebrow}</p>
+    <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{t.course.title}</h1>
+    {
+      routes.length ? (
+        <div class="mt-8 grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {routes.map(route => (
+            <CourseCard catalog={route.catalog} locale={locale} />
+          ))}
+        </div>
+      ) : (
+        <p class="border-border mt-8 rounded-xl border p-6">
+          {t.course.noPublishedCourses}
+        </p>
+      )
+    }
+  </main>
+  <Footer />
+</Layout>

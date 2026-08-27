@@ -1,10 +1,15 @@
 ---
 import type { CourseCatalog } from "@/courses/catalog";
+import { useTranslations } from "@/i18n";
+import type { ContentLocale } from "@/i18n/locales";
+import { detailPath } from "@/i18n/urls";
 
-const { catalog, currentSlug } = Astro.props as {
+const { catalog, currentSlug, locale } = Astro.props as {
   catalog: CourseCatalog;
   currentSlug: string;
+  locale: ContentLocale;
 };
+const t = useTranslations(locale);
 const navigation = catalog.lessonNavigation[currentSlug] ?? {};
 const bySlug = new Map(
   catalog.lessons.map(lesson => [lesson.data.slug, lesson])
@@ -13,20 +18,26 @@ const previous = navigation.previous
   ? bySlug.get(navigation.previous)
   : undefined;
 const next = navigation.next ? bySlug.get(navigation.next) : undefined;
-const base = `/courses/${catalog.course.data.slug}`;
 ---
 
 <nav
-  aria-label="Lesson navigation"
+  aria-label={t.a11y.lessonNavigation}
   class="border-border mt-12 grid gap-4 border-t pt-6 sm:grid-cols-2"
 >
   {
     previous ? (
       <a
         class="hover:text-accent rounded-lg border p-4"
-        href={`${base}/${previous.data.slug}/`}
+        href={detailPath(
+          locale,
+          "courses",
+          catalog.course.data.slug,
+          previous.data.slug
+        )}
       >
-        <span class="block text-xs uppercase opacity-60">Previous</span>
+        <span class="block text-xs uppercase opacity-60">
+          {t.course.previousLesson}
+        </span>
         {previous.data.title}
       </a>
     ) : (
@@ -37,9 +48,16 @@ const base = `/courses/${catalog.course.data.slug}`;
     next && (
       <a
         class="hover:text-accent rounded-lg border p-4 text-right"
-        href={`${base}/${next.data.slug}/`}
+        href={detailPath(
+          locale,
+          "courses",
+          catalog.course.data.slug,
+          next.data.slug
+        )}
       >
-        <span class="block text-xs uppercase opacity-60">Next</span>
+        <span class="block text-xs uppercase opacity-60">
+          {t.course.nextLesson}
+        </span>
         {next.data.title}
       </a>
     )

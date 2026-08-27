@@ -51,6 +51,7 @@ export default {
     courseLabel: "Course",
     curriculum: "Curriculum",
     courseCurriculum: "Course curriculum",
+    modules: "modules",
     lessons: "Lessons",
     lesson: "Lesson",
     estimatedMinutes: "{{minutes}} min",

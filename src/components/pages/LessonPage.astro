@@ -1,0 +1,96 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import CourseSidebar from "@/components/courses/CourseSidebar.astro";
+import LessonNavigation from "@/components/courses/LessonNavigation.astro";
+import type { LessonRouteData } from "@/courses/routes";
+import { tplStr, useTranslations } from "@/i18n";
+import type { ContentLocale } from "@/i18n/locales";
+import { detailPath, sectionPath } from "@/i18n/urls";
+import Layout from "@/layouts/Layout.astro";
+
+const { locale, route } = Astro.props as {
+  locale: ContentLocale;
+  route: LessonRouteData;
+};
+const { catalog, lesson } = route;
+const t = useTranslations(locale);
+const { Content } = await render(
+  lesson as unknown as CollectionEntry<"lessons">
+);
+const canonicalPath = detailPath(
+  locale,
+  "courses",
+  catalog.course.data.slug,
+  lesson.data.slug
+);
+---
+
+<Layout
+  locale={locale}
+  title={`${lesson.data.title} | ${catalog.course.data.title}`}
+  description={lesson.data.description}
+  canonicalURL={new URL(canonicalPath, Astro.site ?? Astro.url).href}
+  alternates={route.alternates}
+  xDefaultHref={route.xDefaultHref}
+>
+  <Header locale={locale} languageHref={route.languageHref} />
+  <main
+    id="main-content"
+    class="app-layout py-8"
+    data-pagefind-filter="content:course"
+  >
+    <nav aria-label="Breadcrumb" class="mb-6 text-sm opacity-75">
+      <a href={sectionPath(locale, "courses")}>{t.course.title}</a> / <a
+        href={detailPath(locale, "courses", catalog.course.data.slug)}
+        >{catalog.course.data.title}</a
+      > / <span aria-current="page">{lesson.data.title}</span>
+    </nav>
+    <details class="border-border mb-6 rounded-xl border p-4 lg:hidden">
+      <summary class="font-semibold">{t.course.courseCurriculum}</summary><div
+        class="mt-4"
+      >
+        <CourseSidebar
+          catalog={catalog}
+          currentSlug={lesson.data.slug}
+          locale={locale}
+        />
+      </div>
+    </details>
+    <div class="grid gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] xl:gap-14">
+      <aside class="hidden self-start lg:sticky lg:top-6 lg:block">
+        <CourseSidebar
+          catalog={catalog}
+          currentSlug={lesson.data.slug}
+          locale={locale}
+        />
+      </aside>
+      <article class="min-w-0" data-pagefind-body>
+        <p class="text-accent font-semibold">{lesson.data.module}</p>
+        <h1 class="mt-2 text-3xl font-bold sm:text-4xl">
+          {lesson.data.title}
+        </h1>
+        <p class="mt-3 opacity-70">
+          {lesson.data.description}{
+            lesson.data.estimatedMinutes
+              ? ` · ${tplStr(t.course.estimatedMinutes, {
+                  minutes: lesson.data.estimatedMinutes,
+                })}`
+              : ""
+          }
+        </p>
+        <div class="app-prose app-reading prose-lg dark:prose-invert mt-8">
+          <Content />
+        </div>
+        <LessonNavigation
+          catalog={catalog}
+          currentSlug={lesson.data.slug}
+          locale={locale}
+        />
+      </article>
+    </div>
+  </main>
+  <Footer />
+</Layout>

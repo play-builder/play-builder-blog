@@ -58,6 +58,12 @@ export function buildCourseCatalog(
         `Lesson ${lesson.id} references unknown course ${lesson.data.courseSlug}`
       );
     }
+    const courseRecordId = course.data.id ?? course.data.notionId;
+    if (courseRecordId && lesson.data.courseId !== courseRecordId) {
+      throw new Error(
+        `Lesson ${lesson.id} references Course ${lesson.data.courseId}, but slug ${lesson.data.courseSlug} resolves to Course ${courseRecordId}`
+      );
+    }
     if (lesson.data.locale !== course.data.locale) {
       throw new Error(
         `Lesson ${lesson.id} locale ${lesson.data.locale} does not match course ${course.data.slug} locale ${course.data.locale}`

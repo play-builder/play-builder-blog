@@ -1,0 +1,87 @@
+---
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import CourseSidebar from "@/components/courses/CourseSidebar.astro";
+import type { CourseRouteData } from "@/courses/routes";
+import { tplStr, useTranslations } from "@/i18n";
+import type { ContentLocale } from "@/i18n/locales";
+import { detailPath, sectionPath } from "@/i18n/urls";
+import Layout from "@/layouts/Layout.astro";
+
+const { locale, route } = Astro.props as {
+  locale: ContentLocale;
+  route: CourseRouteData;
+};
+const { catalog } = route;
+const t = useTranslations(locale);
+const canonicalPath = detailPath(locale, "courses", catalog.course.data.slug);
+---
+
+<Layout
+  locale={locale}
+  title={`${catalog.course.data.title} | Play Builder`}
+  description={catalog.course.data.description}
+  canonicalURL={new URL(canonicalPath, Astro.site ?? Astro.url).href}
+  alternates={route.alternates}
+  xDefaultHref={route.xDefaultHref}
+>
+  <Header locale={locale} languageHref={route.languageHref} />
+  <main
+    id="main-content"
+    class="app-layout py-10"
+    data-pagefind-filter="content:course"
+  >
+    <nav aria-label="Breadcrumb" class="mb-6 text-sm opacity-75">
+      <a href={sectionPath(locale, "courses")}>{t.course.title}</a> / <span
+        aria-current="page">{catalog.course.data.title}</span
+      >
+    </nav>
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] xl:gap-14">
+      <article class="min-w-0">
+        <p class="text-accent font-semibold">{t.course.courseLabel}</p>
+        <h1 class="mt-2 text-3xl font-bold sm:text-4xl">
+          {catalog.course.data.title}
+        </h1>
+        <p class="mt-4 text-lg opacity-80">
+          {catalog.course.data.description}
+        </p>
+        <h2 class="mt-10 text-2xl font-semibold">{t.course.curriculum}</h2>
+        {
+          catalog.modules.map(module => (
+            <section class="mt-7">
+              <h3 class="text-lg font-semibold">{module.name}</h3>
+              <ol class="border-border mt-3 divide-y rounded-xl border">
+                {module.lessons.map(lesson => (
+                  <li>
+                    <a
+                      class="hover:text-accent flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between"
+                      href={detailPath(
+                        locale,
+                        "courses",
+                        catalog.course.data.slug,
+                        lesson.data.slug
+                      )}
+                    >
+                      <span>{lesson.data.title}</span>
+                      <span class="text-sm opacity-60">
+                        {lesson.data.estimatedMinutes
+                          ? tplStr(t.course.estimatedMinutes, {
+                              minutes: lesson.data.estimatedMinutes,
+                            })
+                          : t.course.lesson}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))
+        }
+      </article>
+      <aside class="hidden self-start lg:sticky lg:top-6 lg:block">
+        <CourseSidebar catalog={catalog} locale={locale} />
+      </aside>
+    </div>
+  </main>
+  <Footer />
+</Layout>
