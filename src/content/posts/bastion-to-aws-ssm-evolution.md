@@ -1,6 +1,8 @@
 ---
 title: "서버 접속의 진화: Bastion Host에서 AWS SSM까지"
 description: 1세대 Bastion 키 저장, 2세대 SSH Agent Forwarding을 거쳐 3세대 AWS SSM까지 — 서버 접속 방식의 변천사와 SSM 기반 접속의 구현 가이드(Terraform 포함).
+locale: ko
+translationKey: bastion-to-aws-ssm-evolution
 pubDatetime: 2026-01-29T17:19:00Z
 tags:
   - security

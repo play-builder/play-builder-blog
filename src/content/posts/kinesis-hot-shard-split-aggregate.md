@@ -1,6 +1,8 @@
 ---
 title: "초고속 거래 체결을 지탱하는 Kinesis 패턴: 'Hot Shard'를 회피하는 Split & Aggregate 전략"
 description: 금융 시스템에서 순서 보장(Ordering)과 샤드 병목은 트레이드오프다. Hot Key에 접미사를 붙여 분산 저장하고(Split) 컨슈머에서 타임스탬프로 재정렬하는(Aggregate) 패턴으로 둘 다 잡는 방법.
+locale: ko
+translationKey: kinesis-hot-shard-split-aggregate
 pubDatetime: 2026-01-29T18:03:00Z
 tags:
   - data

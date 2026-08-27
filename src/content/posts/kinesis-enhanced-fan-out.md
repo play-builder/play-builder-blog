@@ -1,6 +1,8 @@
 ---
 title: Kinesis의 숨겨진 터보 버튼 (Enhanced Fan-Out)
 description: ProvisionedThroughputExceededException의 범인은 샤드 대역폭을 나눠 먹는 컨슈머들이다. 컨슈머별 전용 2MB/s 파이프와 HTTP/2 Push를 제공하는 Enhanced Fan-Out의 원리와 적용 기준.
+locale: ko
+translationKey: kinesis-enhanced-fan-out
 pubDatetime: 2026-02-01T16:20:00Z
 tags:
   - observability

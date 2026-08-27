@@ -1,6 +1,8 @@
 ---
 title: "Auto Scaling으로 사라지는 로그, 어떻게 지킬까? Lifecycle Hook과 SSM을 활용한 데이터 보존 전략"
 description: ASG Scale-in 시 인스턴스와 함께 증발하는 로그를 지키는 방법. Lifecycle Hook으로 종료를 잠시 멈추고 EventBridge→Lambda→SSM Run Command로 S3에 백업하는 Graceful Termination 아키텍처를 Terraform으로 구현한다.
+locale: ko
+translationKey: autoscaling-log-preservation-lifecycle-hook-ssm
 pubDatetime: 2026-01-29T18:00:00Z
 tags:
   - observability

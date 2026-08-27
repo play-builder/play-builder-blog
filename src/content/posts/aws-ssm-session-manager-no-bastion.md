@@ -1,6 +1,8 @@
 ---
 title: "SSH Key는 이제 그만: Session Manager로 Bastion 없는 보안 접속 환경 구축"
 description: AmazonSSMManagedInstanceCore 정책 하나로 SSH 키와 22번 포트, Bastion Host 없이 EC2에 안전하게 접속하는 방법과 정책 내부 권한 구조 해설.
+locale: ko
+translationKey: aws-ssm-session-manager-no-bastion
 pubDatetime: 2026-01-29T17:19:00Z
 tags:
   - security

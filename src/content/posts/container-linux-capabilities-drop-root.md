@@ -1,6 +1,8 @@
 ---
 title: "컨테이너 공격 표면 최소화: Linux Capabilities로 Root 권한 제거하기"
 description: 웹 서버는 80번 포트가 필요하고 1024 미만 포트는 Root가 필요하다는 딜레마를, Linux Capabilities와 Kubernetes securityContext로 해결하는 실습 가이드.
+locale: ko
+translationKey: container-linux-capabilities-drop-root
 pubDatetime: 2026-01-29T17:20:00Z
 tags:
   - security

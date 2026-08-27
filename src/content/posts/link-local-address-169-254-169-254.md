@@ -1,6 +1,8 @@
 ---
 title: "169.254.169.254의 정체: Link-Local Address"
 description: 모든 EC2에서 똑같이 동작하는 메타데이터 주소 169.254.169.254의 원리(Link-Local)와, SSRF 공격을 막는 IMDSv2 강제 설정·검증 방법을 정리한다.
+locale: ko
+translationKey: link-local-address-169-254-169-254
 pubDatetime: 2026-01-29T17:18:00Z
 tags:
   - infra

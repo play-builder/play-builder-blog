@@ -1,6 +1,8 @@
 ---
 title: AWS KMS Encryption Context로 이더리움 시드 키 보호하기
 description: KMS Key Policy의 Encryption Context 조건과 클라이언트 사이드 봉투 암호화(Envelope Encryption)를 결합해, AWS 관리자조차 복호화할 수 없는 시드 키 보호 아키텍처를 실습으로 구축한다.
+locale: ko
+translationKey: aws-kms-encryption-context-ethereum-seed
 pubDatetime: 2026-01-29T17:52:00Z
 tags:
   - security

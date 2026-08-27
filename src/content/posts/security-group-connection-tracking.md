@@ -1,6 +1,8 @@
 ---
 title: "SG 격리했는데 공격자 세션이 안 끊겼다 — Connection Tracking을 몰랐던 대가"
 description: Security Group의 본체는 규칙 목록이 아니라 Connection Tracking 엔진이다. Nitro Card 레벨 동작 원리부터 인시던트 대응에서 SG 교체만으로 격리가 안 되는 이유, NACL을 활용한 올바른 격리 순서까지 Terraform 실습으로 검증한다.
+locale: ko
+translationKey: security-group-connection-tracking
 pubDatetime: 2026-02-24T08:24:00Z
 tags:
   - security

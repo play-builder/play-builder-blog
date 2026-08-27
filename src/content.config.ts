@@ -4,8 +4,7 @@ import { glob } from "astro/loaders";
 import config from "@/config";
 import { localizedEntryId } from "@/content/localized";
 import { CONTENT_LOCALES, TRANSLATION_KEY_PATTERN } from "@/i18n/locales";
-
-export const BLOG_PATH = "src/content/posts";
+import { BLOG_PATH } from "@/utils/getPostSlug";
 
 const posts = defineCollection({
   loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: `./${BLOG_PATH}` }),
@@ -18,6 +17,8 @@ const posts = defineCollection({
       featured: z.boolean().optional(),
       draft: z.boolean().optional(),
       tags: z.array(z.string()).default(["others"]),
+      locale,
+      translationKey,
       ogImage: image().or(z.string()).optional(),
       description: z.string(),
       canonicalURL: z.string().optional(),

@@ -1,6 +1,8 @@
 ---
 title: "솔라나 노드 인프라 구축: AWS와 같은 메이저 클라우드만이 정답은 아니다"
 description: 솔라나 밸리데이터 제안을 받고 AWS 범용 인스턴스부터 C7gn, 그리고 베어메탈(Hetzner)까지 비용·성능을 검증한 기록. Egress 비용이 ROI를 어떻게 무너뜨리는지 숫자로 확인한다.
+locale: ko
+translationKey: solana-node-infra-beyond-major-clouds
 pubDatetime: 2026-01-30T08:03:00Z
 tags:
   - finops

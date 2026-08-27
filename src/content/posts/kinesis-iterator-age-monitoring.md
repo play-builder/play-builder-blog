@@ -1,6 +1,8 @@
 ---
 title: "IteratorAgeMilliseconds: 글로벌 크립토 거래소의 실시간 데이터 파이프라인에서 CPU가 아닌 '고객 지연'을 측정해야 하는 이유"
 description: 트래픽이 수백 배로 튀는 크립토 거래소에서 CPU 기반 오토스케일링이 놓치는 I/O 병목을, Kinesis의 IteratorAgeMilliseconds 지표와 KEDA로 잡는 방법. SLA 역산 임계치 설정과 운영 팁까지.
+locale: ko
+translationKey: kinesis-iterator-age-monitoring
 pubDatetime: 2026-02-01T16:31:00Z
 tags:
   - observability
