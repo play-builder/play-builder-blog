@@ -2,7 +2,7 @@
 import TagsPage from "@/components/pages/TagsPage.astro";
 import { getPostsForLocale } from "@/posts/routes";
 
-const posts = await getPostsForLocale("ko");
+const posts = await getPostsForLocale("en");
 ---
 
-<TagsPage locale="ko" {posts} />
+<TagsPage locale="en" {posts} />

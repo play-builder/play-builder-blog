@@ -1,0 +1,10 @@
+---
+import { getEntry } from "astro:content";
+import AboutPage from "@/components/pages/AboutPage.astro";
+
+const about = await getEntry("pages", "about-en");
+if (!about)
+  throw new Error("Missing content entry: src/content/pages/about-en.md");
+---
+
+<AboutPage locale="en" {about} />

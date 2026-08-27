@@ -1,0 +1,42 @@
+---
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import LinkButton from "@/components/LinkButton.astro";
+import { useTranslations } from "@/i18n";
+import { otherLocale, type ContentLocale } from "@/i18n/locales";
+import { localizedPath, sectionPath } from "@/i18n/urls";
+import Layout from "@/layouts/Layout.astro";
+import config from "@/config";
+
+const { locale } = Astro.props as { locale: ContentLocale };
+const t = useTranslations(locale);
+const canonicalPath = localizedPath(locale, "404");
+---
+
+<Layout
+  locale={locale}
+  title={`${t.notFound.title} | ${config.site.title}`}
+  canonicalURL={new URL(canonicalPath, Astro.site ?? Astro.url).href}
+>
+  <Header
+    locale={locale}
+    languageHref={localizedPath(otherLocale(locale), "404")}
+  />
+  <main
+    id="main-content"
+    class="app-layout flex flex-1 items-center justify-center"
+  >
+    <div class="mb-14 flex flex-col items-center justify-center">
+      <h1 class="text-accent text-9xl font-bold">404</h1>
+      <span aria-hidden="true"> ¯\_(ツ)_/¯ </span>
+      <p class="mt-4 text-2xl sm:text-3xl">{t.notFound.message}</p>
+      <LinkButton
+        href={sectionPath(locale, "home")}
+        class="my-6 text-lg underline decoration-dashed underline-offset-8"
+      >
+        {t.notFound.goHome}
+      </LinkButton>
+    </div>
+  </main>
+  <Footer />
+</Layout>

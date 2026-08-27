@@ -2,7 +2,7 @@
 import ArchivesPage from "@/components/pages/ArchivesPage.astro";
 import { getPostsForLocale } from "@/posts/routes";
 
-const posts = await getPostsForLocale("ko");
+const posts = await getPostsForLocale("en");
 ---
 
-<ArchivesPage locale="ko" {posts} />
+<ArchivesPage locale="en" {posts} />

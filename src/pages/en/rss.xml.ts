@@ -1,5 +1,5 @@
 import { buildRss } from "@/rss/feed";
 
 export function GET() {
-  return buildRss("ko");
+  return buildRss("en");
 }

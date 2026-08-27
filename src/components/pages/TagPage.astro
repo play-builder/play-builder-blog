@@ -1,0 +1,50 @@
+---
+import type { Page } from "astro";
+import type { CollectionEntry } from "astro:content";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Card from "@/components/Card.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import Main from "@/components/Main.astro";
+import Pagination from "@/components/Pagination.astro";
+import { useTranslations } from "@/i18n";
+import type { ContentLocale } from "@/i18n/locales";
+import { localizedPath, sectionPath } from "@/i18n/urls";
+import Layout from "@/layouts/Layout.astro";
+import config from "@/config";
+
+const { locale, page, tagName, tag } = Astro.props as {
+  locale: ContentLocale;
+  page: Page<CollectionEntry<"posts">>;
+  tagName: string;
+  tag: string;
+};
+const t = useTranslations(locale);
+const canonicalPath = localizedPath(
+  locale,
+  page.currentPage === 1 ? `tags/${tag}` : `tags/${tag}/${page.currentPage}`
+);
+---
+
+<Layout
+  locale={locale}
+  title={`${t.pages.tagTitle}: ${tagName} | ${config.site.title}`}
+  description={`${t.pages.tagDesc} "${tagName}".`}
+  canonicalURL={new URL(canonicalPath, Astro.site ?? Astro.url).href}
+>
+  <Header
+    locale={locale}
+    languageHref={sectionPath(locale === "ko" ? "en" : "ko", "tags")}
+  />
+  <Breadcrumb />
+  <Main
+    pageTitle={`${t.pages.tagTitle}: ${tagName}`}
+    pageDesc={`${t.pages.tagDesc} "${tagName}".`}
+  >
+    <ul>
+      {page.data.map(data => <Card {...data} locale={locale} />)}
+    </ul>
+  </Main>
+  <Pagination {page} locale={locale} />
+  <Footer noMarginTop={page.lastPage > 1} />
+</Layout>

@@ -6,6 +6,10 @@ import { localizedEntryId } from "@/content/localized";
 import { CONTENT_LOCALES, TRANSLATION_KEY_PATTERN } from "@/i18n/locales";
 import { BLOG_PATH } from "@/utils/getPostSlug";
 
+const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+const locale = z.enum(CONTENT_LOCALES);
+const translationKey = z.string().regex(TRANSLATION_KEY_PATTERN);
+
 const posts = defineCollection({
   loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: `./${BLOG_PATH}` }),
   schema: ({ image }) =>
@@ -32,14 +36,12 @@ const pages = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
+    locale,
+    translationKey,
     ogImage: z.string().optional(),
     canonicalURL: z.string().optional(),
   }),
 });
-
-const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
-const locale = z.enum(CONTENT_LOCALES);
-const translationKey = z.string().regex(TRANSLATION_KEY_PATTERN);
 
 const courses = defineCollection({
   loader: glob({

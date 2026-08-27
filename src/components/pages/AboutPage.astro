@@ -1,0 +1,48 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import Main from "@/components/Main.astro";
+import {
+  CONTENT_LOCALES,
+  otherLocale,
+  type ContentLocale,
+} from "@/i18n/locales";
+import { sectionPath } from "@/i18n/urls";
+import Layout from "@/layouts/Layout.astro";
+import config from "@/config";
+
+const { locale, about } = Astro.props as {
+  locale: ContentLocale;
+  about: CollectionEntry<"pages">;
+};
+const { Content } = await render(about);
+const canonicalPath = sectionPath(locale, "about");
+const alternates = CONTENT_LOCALES.map(alternateLocale => ({
+  locale: alternateLocale,
+  href: sectionPath(alternateLocale, "about"),
+}));
+---
+
+<Layout
+  locale={locale}
+  title={`${about.data.title} | ${config.site.title}`}
+  description={about.data.description}
+  ogImage={about.data.ogImage}
+  canonicalURL={about.data.canonicalURL ??
+    new URL(canonicalPath, Astro.site ?? Astro.url).href}
+  alternates={alternates}
+  xDefaultHref="/about/"
+>
+  <Header
+    locale={locale}
+    languageHref={sectionPath(otherLocale(locale), "about")}
+  />
+  <Breadcrumb />
+  <Main pageTitle={about.data.title} class="app-prose">
+    <Content />
+  </Main>
+  <Footer />
+</Layout>

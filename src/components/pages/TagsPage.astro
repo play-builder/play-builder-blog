@@ -1,0 +1,61 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import Main from "@/components/Main.astro";
+import Tag from "@/components/Tag.astro";
+import { useTranslations } from "@/i18n";
+import {
+  CONTENT_LOCALES,
+  otherLocale,
+  type ContentLocale,
+} from "@/i18n/locales";
+import { sectionPath } from "@/i18n/urls";
+import Layout from "@/layouts/Layout.astro";
+import { getUniqueTags } from "@/utils/getUniqueTags";
+import config from "@/config";
+
+const { locale, posts } = Astro.props as {
+  locale: ContentLocale;
+  posts: CollectionEntry<"posts">[];
+};
+const tags = getUniqueTags(posts);
+const t = useTranslations(locale);
+const canonicalPath = sectionPath(locale, "tags");
+const alternates = CONTENT_LOCALES.map(alternateLocale => ({
+  locale: alternateLocale,
+  href: sectionPath(alternateLocale, "tags"),
+}));
+---
+
+<Layout
+  locale={locale}
+  title={`${t.pages.tagsTitle} | ${config.site.title}`}
+  description={t.pages.tagsDesc}
+  canonicalURL={new URL(canonicalPath, Astro.site ?? Astro.url).href}
+  alternates={alternates}
+  xDefaultHref="/tags/"
+>
+  <Header
+    locale={locale}
+    languageHref={sectionPath(otherLocale(locale), "tags")}
+  />
+  <Breadcrumb />
+  <Main pageTitle={t.pages.tagsTitle} pageDesc={t.pages.tagsDesc}>
+    {
+      tags.length > 0 ? (
+        <ul class="flex flex-wrap gap-6">
+          {tags.map(({ tag, tagName }) => (
+            <Tag {tag} {tagName} locale={locale} />
+          ))}
+        </ul>
+      ) : (
+        <p class="border-border rounded-xl border p-6">
+          {t.post.noPublishedPosts}
+        </p>
+      )
+    }
+  </Main>
+  <Footer />
+</Layout>

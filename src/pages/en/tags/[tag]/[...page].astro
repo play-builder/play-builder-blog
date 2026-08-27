@@ -7,7 +7,7 @@ import { slugifyAll } from "@/utils/slugify";
 import config from "@/config";
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-  const posts = await getPostsForLocale("ko");
+  const posts = await getPostsForLocale("en");
   const tags = getUniqueTags(posts);
 
   return tags.flatMap(({ tag, tagName }) =>
@@ -26,4 +26,4 @@ const { page, tagName } = Astro.props;
 const tag = Astro.params.tag ?? "";
 ---
 
-<TagPage locale="ko" {page} {tagName} {tag} />
+<TagPage locale="en" {page} {tagName} {tag} />

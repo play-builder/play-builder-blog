@@ -1,6 +1,8 @@
 ---
 title: "About"
 description: "Hi, I'm Kai. I build and operate mission-critical infrastructure for blockchain networks, cloud-native platforms, and distributed systems."
+locale: en
+translationKey: about
 ---
 
 Hi, I'm **Kai**.
