@@ -6,6 +6,7 @@ import {
   type Course,
   type Lesson,
 } from "./model";
+import { prepareNotionMarkdown } from "./markdown";
 
 type NotionClient = {
   queryDataSource(id: string): Promise<unknown[]>;
@@ -41,15 +42,6 @@ export type SyncDependencies = {
 
 const frontmatter = (value: Record<string, unknown>) =>
   `---\n${YAML.stringify(value).trim()}\n---\n\n`;
-
-const normalizeNotionMarkdown = (markdown: string) =>
-  markdown
-    .replace(/^<empty-block\b[^>]*\/>[^\S\r\n]*$/gm, "")
-    .replace(
-      /^<table_of_contents\b[^>]*\/>[^\S\r\n]*$/gm,
-      "## Table of contents"
-    )
-    .replace(/^(<\/table>[^\S\r\n]*)\r?\n(?=\S)/gm, "$1\n\n");
 
 async function localizeMarkdownImages(
   markdown: string,
@@ -133,7 +125,7 @@ export async function syncNotionCourses(
         cause: error,
       });
     }
-    markdown = normalizeNotionMarkdown(markdown);
+    markdown = prepareNotionMarkdown(markdown, lesson.id);
     markdown = await localizeMarkdownImages(markdown, lesson, deps, assets);
     const data = {
       notionId: lesson.id,

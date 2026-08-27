@@ -12,6 +12,46 @@ const fixture = async (name: string) =>
     )
   );
 
+const unsupportedNotionBlocks = [
+  ["callout", '<callout icon="⚠️">\n\t주의 사항\n</callout>'],
+  ["details", '<details>\n<summary>토글</summary>\n\t내용\n</details>'],
+  ["columns", "<columns>\n\t<column>\n\t\t내용\n\t</column>\n</columns>"],
+  ["audio", '<audio src="https://example.com/audio.mp3">Audio</audio>'],
+  ["video", '<video src="https://example.com/video.mp4">Video</video>'],
+  ["file", '<file src="https://example.com/guide.txt">Guide</file>'],
+  ["pdf", '<pdf src="https://example.com/guide.pdf">Guide</pdf>'],
+  ["page", '<page url="https://notion.so/page">Child page</page>'],
+  [
+    "database",
+    '<database url="https://notion.so/database" inline="false">DB</database>',
+  ],
+  [
+    "synced_block",
+    '<synced_block url="https://notion.so/block">\n\t내용\n</synced_block>',
+  ],
+  [
+    "synced_block_reference",
+    '<synced_block_reference url="https://notion.so/block">\n\t내용\n</synced_block_reference>',
+  ],
+  ["meeting-notes", '<meeting-notes>\n\t회의 내용\n</meeting-notes>'],
+  ["mention-user", '<mention-user url="user://123">Ada</mention-user>'],
+  ["mention-page", '<mention-page url="notion://page">Page</mention-page>'],
+  [
+    "mention-database",
+    '<mention-database url="notion://database">Database</mention-database>',
+  ],
+  [
+    "mention-data-source",
+    '<mention-data-source url="notion://source">Source</mention-data-source>',
+  ],
+  ["mention-agent", '<mention-agent url="notion://agent">Agent</mention-agent>'],
+  ["mention-date", '<mention-date start="2026-08-27"/>'],
+  [
+    "unknown",
+    '<unknown url="https://notion.so/block" alt="bookmark"/>',
+  ],
+] as const;
+
 describe("syncNotionCourses", () => {
   it("generates only published content and safe YAML frontmatter", async () => {
     const courses = await fixture("courses.json");
@@ -219,5 +259,59 @@ echo test
     expect(code).toContain("<ul>");
     expect(code).not.toContain("empty-block");
     expect(code).not.toContain("```bash");
+  });
+
+  it.each(unsupportedNotionBlocks)(
+    "rejects unsupported Notion <%s> markup without replacing generated content",
+    async (tag, notionMarkdown) => {
+      const courses = await fixture("courses.json");
+      const lessons = await fixture("lessons.json");
+      let replaced = false;
+
+      await expect(
+        syncNotionCourses(
+          { coursesDataSourceId: "courses", lessonsDataSourceId: "lessons" },
+          {
+            client: {
+              queryDataSource: async id =>
+                id === "courses" ? courses : lessons,
+              retrievePageMarkdown: async () => notionMarkdown,
+            },
+            replaceGenerated: async () => void (replaced = true),
+          }
+        )
+      ).rejects.toThrow(new RegExp(`lesson-(?:ko|en)-1.*<${tag}>`));
+      expect(replaced).toBe(false);
+    }
+  );
+
+  it("keeps replacement atomic when a later published lesson is unsupported", async () => {
+    const courses = await fixture("courses.json");
+    const lessons = await fixture("lessons.json");
+    const retrieved: string[] = [];
+    let replaced = false;
+
+    await expect(
+      syncNotionCourses(
+        { coursesDataSourceId: "courses", lessonsDataSourceId: "lessons" },
+        {
+          client: {
+            queryDataSource: async id =>
+              id === "courses" ? courses : lessons,
+            retrievePageMarkdown: async id => {
+              retrieved.push(id);
+              return id === "lesson-ko-2"
+                ? "<callout>unsupported</callout>"
+                : "## Supported";
+            },
+          },
+          replaceGenerated: async () => void (replaced = true),
+        }
+      )
+    ).rejects.toThrow(
+      "Unsupported Notion markdown for lesson-ko-2: <callout>"
+    );
+    expect(retrieved.indexOf("lesson-ko-2")).toBeGreaterThan(0);
+    expect(replaced).toBe(false);
   });
 });
