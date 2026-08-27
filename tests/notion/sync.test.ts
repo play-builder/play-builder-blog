@@ -170,4 +170,54 @@ describe("syncNotionCourses", () => {
     expect(code).toContain(">0. 사전 준비</a>");
     expect(code).not.toContain("table_of_contents");
   });
+
+  it("turns a Notion empty block into a boundary before later markdown", async () => {
+    const courses = await fixture("courses.json");
+    const lessons = await fixture("lessons.json");
+    const notionMarkdown = `## 2. 복제 권한 구성
+### 2.1. 복제용 IAM role 만들기
+<empty-block/>
+\`trust policy 파일 만들기\`
+\`\`\`bash
+echo test
+\`\`\`
+> **Note**
+\t설명입니다.
+### 2.2. 대상 bucket policy 등록
+- 첫 항목
+- 둘째 항목`;
+    let generated: Record<string, string | Uint8Array> = {};
+
+    await syncNotionCourses(
+      { coursesDataSourceId: "courses", lessonsDataSourceId: "lessons" },
+      {
+        client: {
+          queryDataSource: async id => (id === "courses" ? courses : lessons),
+          retrievePageMarkdown: async () => notionMarkdown,
+        },
+        replaceGenerated: async files => void (generated = files),
+      }
+    );
+
+    const lesson =
+      generated[
+        "lessons/ko/ethereum-validator-operations/install-clients.md"
+      ];
+    expect(typeof lesson).toBe("string");
+    const markdown = lesson as string;
+    const bodyStart = markdown.indexOf("---\n\n", 3);
+    expect(bodyStart).toBeGreaterThan(0);
+
+    const processor = await createMarkdownProcessor({
+      syntaxHighlight: false,
+      smartypants: false,
+    });
+    const { code } = await processor.render(markdown.slice(bodyStart + 5));
+
+    expect(code).toContain('<code class="language-bash">echo test');
+    expect(code).toContain('<h3 id="22-대상-bucket-policy-등록">');
+    expect(code).toContain("<ul>");
+    expect(code).not.toContain("empty-block");
+    expect(code).not.toContain("```bash");
+  });
 });

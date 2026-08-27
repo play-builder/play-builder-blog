@@ -44,6 +44,7 @@ const frontmatter = (value: Record<string, unknown>) =>
 
 const normalizeNotionMarkdown = (markdown: string) =>
   markdown
+    .replace(/^<empty-block\b[^>]*\/>[^\S\r\n]*$/gm, "")
     .replace(
       /^<table_of_contents\b[^>]*\/>[^\S\r\n]*$/gm,
       "## Table of contents"
