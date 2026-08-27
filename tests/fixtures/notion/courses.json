@@ -15,6 +15,11 @@
         "type": "rich_text",
         "rich_text": [{ "plain_text": "Operate validators safely" }]
       },
+      "Locale": { "type": "select", "select": { "name": "ko" } },
+      "TranslationKey": {
+        "type": "rich_text",
+        "rich_text": [{ "plain_text": "ethereum-validator-operations" }]
+      },
       "Order": { "type": "number", "number": 1 },
       "Status": { "type": "status", "status": { "name": "Published" } },
       "Tags": {
@@ -36,6 +41,11 @@
       "Description": {
         "type": "rich_text",
         "rich_text": [{ "plain_text": "Not published" }]
+      },
+      "Locale": { "type": "select", "select": { "name": "ko" } },
+      "TranslationKey": {
+        "type": "rich_text",
+        "rich_text": [{ "plain_text": "draft-course" }]
       },
       "Order": { "type": "number", "number": 2 },
       "Status": { "type": "status", "status": { "name": "Draft" } },

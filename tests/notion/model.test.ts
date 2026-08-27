@@ -3,6 +3,9 @@ import {
   parseCoursePage,
   parseLessonPage,
   selectPublishedContent,
+  validateLocalizedContent,
+  type Course,
+  type Lesson,
 } from "@/notion/model";
 
 const richText = (value: string) => [{ plain_text: value }];
@@ -53,6 +56,16 @@ const lessonPage = () => ({
     EstimatedMinutes: { type: "number", number: 30 },
     Tags: { type: "multi_select", multi_select: [{ name: "Linux" }] },
   },
+});
+
+const course = (overrides: Partial<Course> = {}): Course => ({
+  ...parseCoursePage(coursePage()),
+  ...overrides,
+});
+
+const lesson = (overrides: Partial<Lesson> = {}): Lesson => ({
+  ...parseLessonPage(lessonPage()),
+  ...overrides,
 });
 
 describe("Notion content model", () => {
@@ -161,5 +174,99 @@ describe("Notion content model", () => {
         [parseLessonPage(page)]
       )
     ).toThrow(/unknown course/);
+  });
+
+  it("rejects duplicate course slugs within one locale", () => {
+    expect(() =>
+      validateLocalizedContent(
+        [
+          course(),
+          course({
+            id: "course-2",
+            translationKey: "ethereum-validator-operations-second",
+          }),
+        ],
+        []
+      )
+    ).toThrow(/Duplicate Course slug.*ethereum-validator-operations.*ko/);
+  });
+
+  it("rejects duplicate course translation keys within one locale", () => {
+    expect(() =>
+      validateLocalizedContent(
+        [
+          course(),
+          course({ id: "course-2", slug: "validator-operations-second" }),
+        ],
+        []
+      )
+    ).toThrow(
+      /Duplicate Course translationKey.*ethereum-validator-operations.*ko/
+    );
+  });
+
+  it("rejects duplicate lesson slugs within one course and locale", () => {
+    expect(() =>
+      validateLocalizedContent(
+        [course()],
+        [
+          lesson(),
+          lesson({ id: "lesson-2", translationKey: "install-clients-second" }),
+        ]
+      )
+    ).toThrow(/Duplicate Lesson slug.*install-clients.*ko/);
+  });
+
+  it("rejects duplicate lesson translation keys within one locale", () => {
+    expect(() =>
+      validateLocalizedContent(
+        [course()],
+        [lesson(), lesson({ id: "lesson-2", slug: "install-clients-second" })]
+      )
+    ).toThrow(/Duplicate Lesson translationKey.*install-clients.*ko/);
+  });
+
+  it("rejects a lesson related to a course in another locale", () => {
+    expect(() =>
+      validateLocalizedContent(
+        [course({ id: "course-en", locale: "en" })],
+        [lesson({ courseId: "course-en", locale: "ko" })]
+      )
+    ).toThrow(/lesson-1.*ko.*course-en.*en/);
+  });
+
+  it("allows one translation key once in each locale", () => {
+    expect(() =>
+      validateLocalizedContent(
+        [
+          course(),
+          course({ id: "course-en", locale: "en" }),
+        ],
+        [
+          lesson(),
+          lesson({ id: "lesson-en", locale: "en", courseId: "course-en" }),
+        ]
+      )
+    ).not.toThrow();
+  });
+
+  it("allows content with no translation in the other locale", () => {
+    expect(() => validateLocalizedContent([course()], [lesson()])).not.toThrow();
+  });
+
+  it("validates Draft rows before selecting Published content", () => {
+    expect(() =>
+      selectPublishedContent(
+        [
+          course(),
+          course({
+            id: "course-draft",
+            slug: "draft-course",
+            status: "Draft",
+          }),
+        ],
+        [lesson()]
+      )
+    ).toThrow(/Duplicate Course translationKey/);
   });
 });

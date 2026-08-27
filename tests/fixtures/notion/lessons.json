@@ -15,6 +15,11 @@
         "type": "rich_text",
         "rich_text": [{ "plain_text": "Install clients" }]
       },
+      "Locale": { "type": "select", "select": { "name": "ko" } },
+      "TranslationKey": {
+        "type": "rich_text",
+        "rich_text": [{ "plain_text": "install-clients" }]
+      },
       "Course": { "type": "relation", "relation": [{ "id": "course-1" }] },
       "Module": { "type": "select", "select": { "name": "Setup" } },
       "ModuleOrder": { "type": "number", "number": 1 },
@@ -36,6 +41,11 @@
       "Description": {
         "type": "rich_text",
         "rich_text": [{ "plain_text": "Verify node sync" }]
+      },
+      "Locale": { "type": "select", "select": { "name": "ko" } },
+      "TranslationKey": {
+        "type": "rich_text",
+        "rich_text": [{ "plain_text": "verify-sync" }]
       },
       "Course": { "type": "relation", "relation": [{ "id": "course-1" }] },
       "Module": { "type": "select", "select": { "name": "Operations" } },
@@ -61,6 +71,11 @@
       "Description": {
         "type": "rich_text",
         "rich_text": [{ "plain_text": "Not published" }]
+      },
+      "Locale": { "type": "select", "select": { "name": "ko" } },
+      "TranslationKey": {
+        "type": "rich_text",
+        "rich_text": [{ "plain_text": "draft-lesson" }]
       },
       "Course": { "type": "relation", "relation": [{ "id": "course-1" }] },
       "Module": { "type": "select", "select": { "name": "Operations" } },

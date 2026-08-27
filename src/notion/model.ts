@@ -256,21 +256,73 @@ export function parseLessonPage(page: unknown): Lesson {
   };
 }
 
+const assertUnique = <T>(
+  items: readonly T[],
+  keyOf: (item: T) => string,
+  errorOf: (item: T) => string
+): void => {
+  const seen = new Map<string, T>();
+  for (const item of items) {
+    const key = keyOf(item);
+    if (seen.has(key)) throw new NotionValidationError(errorOf(item));
+    seen.set(key, item);
+  }
+};
+
+export function validateLocalizedContent(
+  courses: readonly Course[],
+  lessons: readonly Lesson[]
+): void {
+  assertUnique(
+    courses,
+    course => `${course.locale}:${course.slug}`,
+    course =>
+      `Duplicate Course slug "${course.slug}" in locale ${course.locale}`
+  );
+  assertUnique(
+    courses,
+    course => `${course.locale}:${course.translationKey}`,
+    course =>
+      `Duplicate Course translationKey "${course.translationKey}" in locale ${course.locale}`
+  );
+
+  const courseById = new Map(courses.map(course => [course.id, course]));
+  for (const lesson of lessons) {
+    const course = courseById.get(lesson.courseId);
+    if (!course) {
+      throw new NotionValidationError(
+        `Lesson ${lesson.id} references unknown course ${lesson.courseId}`
+      );
+    }
+    if (lesson.locale !== course.locale) {
+      throw new NotionValidationError(
+        `Lesson ${lesson.id} locale ${lesson.locale} references course ${course.id} locale ${course.locale}`
+      );
+    }
+  }
+
+  assertUnique(
+    lessons,
+    lesson => `${lesson.locale}:${lesson.courseId}:${lesson.slug}`,
+    lesson =>
+      `Duplicate Lesson slug "${lesson.slug}" in locale ${lesson.locale} for course ${lesson.courseId}`
+  );
+  assertUnique(
+    lessons,
+    lesson => `${lesson.locale}:${lesson.translationKey}`,
+    lesson =>
+      `Duplicate Lesson translationKey "${lesson.translationKey}" in locale ${lesson.locale}`
+  );
+}
+
 export function selectPublishedContent(
   courses: Course[],
   lessons: Lesson[]
 ): Publication {
+  validateLocalizedContent(courses, lessons);
   const publishedCourses = courses.filter(
     course => course.status === "Published"
   );
-  const allCourseIds = new Set(courses.map(course => course.id));
-  for (const lesson of lessons.filter(item => item.status === "Published")) {
-    if (!allCourseIds.has(lesson.courseId)) {
-      throw new NotionValidationError(
-        `Published lesson ${lesson.id} references unknown course ${lesson.courseId}`
-      );
-    }
-  }
   const publishedIds = new Set(publishedCourses.map(course => course.id));
   return {
     courses: [...publishedCourses].sort(
