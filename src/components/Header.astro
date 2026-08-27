@@ -9,11 +9,33 @@ import IconX from "@/assets/icons/IconX.svg";
 import LinkButton from "./LinkButton.astro";
 import { stripBase, stripLocale } from "@/utils/withBase";
 import { useTranslations } from "@/i18n";
+import {
+  DEFAULT_LOCALE,
+  isContentLocale,
+  otherLocale,
+  type ContentLocale,
+} from "@/i18n/locales";
+import { sectionPath } from "@/i18n/urls";
 import config from "@/config";
 
 const { site, features } = config;
 
-const locale = Astro.currentLocale ?? config.site.lang;
+type Props = {
+  locale?: ContentLocale;
+  languageHref?: string;
+};
+
+const requestedLocale =
+  Astro.props.locale ?? Astro.currentLocale ?? config.site.lang;
+const locale = isContentLocale(requestedLocale)
+  ? requestedLocale
+  : DEFAULT_LOCALE;
+const targetLocale = otherLocale(locale);
+const currentHref = Astro.url.pathname;
+const targetHref =
+  Astro.props.languageHref ?? sectionPath(targetLocale, "home");
+const koreanHref = locale === "ko" ? currentHref : targetHref;
+const englishHref = locale === "en" ? currentHref : targetHref;
 const t = useTranslations(locale);
 
 // Strip the base prefix so isActive comparisons work regardless of deploy subdirectory.
@@ -122,6 +144,35 @@ const isActive = (path: string) => {
                   />
                 )}
               </LinkButton>
+            </li>
+          )
+        }
+        {
+          (
+            <li class="col-span-2 flex items-center justify-center">
+              <nav
+                aria-label={t.a11y.languageNavigation}
+                class="flex items-center gap-1 text-sm font-semibold"
+                data-language-switch
+              >
+                <a
+                  href={koreanHref}
+                  aria-label={t.language.switchToKorean}
+                  aria-current={locale === "ko" ? "page" : undefined}
+                  class="focus-outline rounded px-1 py-1"
+                >
+                  {t.language.korean}
+                </a>
+                <span aria-hidden="true">|</span>
+                <a
+                  href={englishHref}
+                  aria-label={t.language.switchToEnglish}
+                  aria-current={locale === "en" ? "page" : undefined}
+                  class="focus-outline rounded px-1 py-1"
+                >
+                  {t.language.english}
+                </a>
+              </nav>
             </li>
           )
         }

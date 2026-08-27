@@ -4,14 +4,27 @@ import { ClientRouter } from "astro:transitions";
 import { getRelativeLocaleUrl } from "astro:i18n";
 import { resolveDefaultOgImagePath } from "@/utils/resolveDefaultOgImagePath";
 import { getAssetPath } from "@/utils/withBase";
+import {
+  DEFAULT_LOCALE,
+  isContentLocale,
+  type ContentLocale,
+} from "@/i18n/locales";
 import config from "@/config";
 import "@/styles/global.css";
+
+type LocaleAlternate = {
+  locale: ContentLocale;
+  href: string;
+};
 
 type Props = {
   title?: string;
   description?: string;
   ogImage?: string;
   canonicalURL?: string;
+  locale?: ContentLocale;
+  alternates?: LocaleAlternate[];
+  xDefaultHref?: string;
 };
 
 const { site } = config;
@@ -21,19 +34,23 @@ const {
   description = site.description,
   ogImage = resolveDefaultOgImagePath(config),
   canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
+  locale: explicitLocale,
+  alternates = [],
+  xDefaultHref,
 } = Astro.props;
 
+const requestedLocale = explicitLocale ?? Astro.currentLocale ?? site.lang;
+const locale = isContentLocale(requestedLocale)
+  ? requestedLocale
+  : DEFAULT_LOCALE;
 const socialImageURL = new URL(ogImage, Astro.site ?? Astro.url);
-const rssHref = getRelativeLocaleUrl(
-  Astro.currentLocale ?? config.site.lang,
-  "rss.xml"
-);
+const rssHref = getRelativeLocaleUrl(locale, "rss.xml");
 ---
 
 <!doctype html>
 <html
   dir={site.dir ?? "ltr"}
-  lang={Astro.currentLocale ?? site.lang}
+  lang={locale}
   class="overflow-y-scroll scroll-smooth"
 >
   <head>
@@ -42,6 +59,24 @@ const rssHref = getRelativeLocaleUrl(
     <link rel="icon" type="image/svg+xml" href={getAssetPath("favicon.svg")} />
     <link rel="icon" href={getAssetPath("favicon.ico")} />
     <link rel="canonical" href={canonicalURL} />
+    {
+      alternates.map(alternate => (
+        <link
+          rel="alternate"
+          hreflang={alternate.locale}
+          href={new URL(alternate.href, Astro.site)}
+        />
+      ))
+    }
+    {
+      xDefaultHref && (
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href={new URL(xDefaultHref, Astro.site)}
+        />
+      )
+    }
     <meta name="generator" content={Astro.generator} />
 
     <!-- Font -->

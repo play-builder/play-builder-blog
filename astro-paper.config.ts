@@ -10,7 +10,7 @@ export default defineAstroPaperConfig({
     author: "PlayBuilder",
     profile: "https://github.com/play-builder",
     ogImage: "play-builder-image.jpg",
-    lang: "en",
+    lang: "ko",
     timezone: "Asia/Seoul",
     dir: "ltr",
   },

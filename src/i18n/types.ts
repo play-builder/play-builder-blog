@@ -31,6 +31,36 @@ export interface UIStrings {
     featured: string;
     recentPosts: string;
     allPosts: string;
+    heroTitle: string;
+    heroDescription: string;
+    heroExplore: string;
+    profileWebsite: string;
+    latestPosts: string;
+    publishedCourses: string;
+    allCourses: string;
+    noPublishedCourses: string;
+  };
+  course: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    courseLabel: string;
+    curriculum: string;
+    courseCurriculum: string;
+    lessons: string;
+    lesson: string;
+    estimatedMinutes: string;
+    noPublishedCourses: string;
+    backToCourses: string;
+    previousLesson: string;
+    nextLesson: string;
+  };
+  language: {
+    korean: string;
+    english: string;
+    switchToKorean: string;
+    switchToEnglish: string;
+    translationUnavailable: string;
   };
   footer: {
     copyright: string;
@@ -63,6 +93,17 @@ export interface UIStrings {
     noResults: string;
     goToPreviousPage: string;
     goToNextPage: string;
+    languageNavigation: string;
+    secondaryNavigation: string;
+    paginationNavigation: string;
+    lessonNavigation: string;
+    courseCurriculum: string;
+    rssFeed: string;
+    copy: string;
+    copied: string;
+    zoomImage: string;
+    imagePreview: string;
+    closeImagePreview: string;
   };
   notFound: {
     title: string;
