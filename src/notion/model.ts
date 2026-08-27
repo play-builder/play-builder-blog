@@ -1,3 +1,9 @@
+import {
+  TRANSLATION_KEY_PATTERN,
+  isContentLocale,
+  type ContentLocale,
+} from "@/i18n/locales";
+
 export type PublicationStatus = "Draft" | "Published" | "Archived";
 
 export type Course = {
@@ -5,6 +11,8 @@ export type Course = {
   title: string;
   slug: string;
   description: string;
+  locale: ContentLocale;
+  translationKey: string;
   order: number;
   status: PublicationStatus;
   tags: string[];
@@ -17,6 +25,8 @@ export type Lesson = {
   title: string;
   slug: string;
   description: string;
+  locale: ContentLocale;
+  translationKey: string;
   courseId: string;
   module: string;
   moduleOrder: number;
@@ -119,6 +129,42 @@ const assertSlug = (slug: string, label: string) => {
   }
 };
 
+const localization = (
+  properties: UnknownRecord,
+  pageId: string
+): { locale: ContentLocale; translationKey: string } => {
+  const localeProperty = record(
+    properties.Locale,
+    `page ${pageId} property Locale`
+  );
+  const localeSelection = record(
+    localeProperty.select,
+    `page ${pageId} property Locale.select`
+  );
+  const locale = localeSelection.name;
+  if (!isContentLocale(locale)) {
+    throw new NotionValidationError(
+      `page ${pageId} property Locale must be ko or en`
+    );
+  }
+
+  const translationKeyProperty = record(
+    properties.TranslationKey,
+    `page ${pageId} property TranslationKey`
+  );
+  const translationKey = text(
+    translationKeyProperty.rich_text,
+    `page ${pageId} property TranslationKey.rich_text`
+  );
+  if (!TRANSLATION_KEY_PATTERN.test(translationKey)) {
+    throw new NotionValidationError(
+      `page ${pageId} property TranslationKey must be lowercase kebab-case`
+    );
+  }
+
+  return { locale, translationKey };
+};
+
 const base = (page: unknown) => {
   const value = record(page, "Notion page");
   const id = value.id;
@@ -137,6 +183,7 @@ const base = (page: unknown) => {
 
 export function parseCoursePage(page: unknown): Course {
   const { id, lastEditedTime, properties } = base(page);
+  const { locale, translationKey } = localization(properties, id);
   const slug = requiredText(properties, "Slug", "rich_text");
   assertSlug(slug, "Course Slug");
   const files = array(property(properties, "Cover").files, "Cover.files");
@@ -156,6 +203,8 @@ export function parseCoursePage(page: unknown): Course {
     title: requiredText(properties, "Title", "title"),
     slug,
     description: requiredText(properties, "Description", "rich_text"),
+    locale,
+    translationKey,
     order: requiredNumber(properties, "Order"),
     status: status(properties),
     tags: tags(properties),
@@ -166,6 +215,7 @@ export function parseCoursePage(page: unknown): Course {
 
 export function parseLessonPage(page: unknown): Lesson {
   const { id, lastEditedTime, properties } = base(page);
+  const { locale, translationKey } = localization(properties, id);
   const slug = requiredText(properties, "Slug", "rich_text");
   assertSlug(slug, "Lesson Slug");
   const relation = array(
@@ -193,6 +243,8 @@ export function parseLessonPage(page: unknown): Lesson {
     title: requiredText(properties, "Title", "title"),
     slug,
     description: requiredText(properties, "Description", "rich_text"),
+    locale,
+    translationKey,
     courseId,
     module: moduleName,
     moduleOrder: requiredNumber(properties, "ModuleOrder"),
