@@ -2,6 +2,8 @@ import { defineCollection } from "astro:content";
 import { z } from "astro/zod";
 import { glob } from "astro/loaders";
 import config from "@/config";
+import { localizedEntryId } from "@/content/localized";
+import { CONTENT_LOCALES, TRANSLATION_KEY_PATTERN } from "@/i18n/locales";
 
 export const BLOG_PATH = "src/content/posts";
 
@@ -35,17 +37,22 @@ const pages = defineCollection({
 });
 
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+const locale = z.enum(CONTENT_LOCALES);
+const translationKey = z.string().regex(TRANSLATION_KEY_PATTERN);
 
 const courses = defineCollection({
   loader: glob({
-    pattern: "courses/*.json",
+    pattern: "courses/**/*.json",
     base: "./src/content/generated-notion",
+    generateId: ({ entry }) => localizedEntryId(entry, "courses"),
   }),
   schema: z.object({
     id: z.string(),
     title: z.string(),
     slug,
     description: z.string(),
+    locale,
+    translationKey,
     order: z.number().int().nonnegative(),
     status: z.literal("Published"),
     tags: z.array(z.string()),
@@ -58,12 +65,15 @@ const lessons = defineCollection({
   loader: glob({
     pattern: "lessons/**/*.md",
     base: "./src/content/generated-notion",
+    generateId: ({ entry }) => localizedEntryId(entry, "lessons"),
   }),
   schema: z.object({
     notionId: z.string(),
     title: z.string(),
     slug,
     description: z.string(),
+    locale,
+    translationKey,
     courseId: z.string(),
     courseSlug: slug,
     module: z.string(),

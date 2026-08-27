@@ -1,3 +1,5 @@
+import type { ContentLocale } from "@/i18n/locales";
+
 export type CourseEntry = {
   id: string;
   data: {
@@ -6,6 +8,8 @@ export type CourseEntry = {
     title: string;
     slug: string;
     description: string;
+    locale: ContentLocale;
+    translationKey: string;
     order: number;
     tags: string[];
     coverUrl?: string;
@@ -20,6 +24,8 @@ export type LessonEntry = {
     title: string;
     slug: string;
     description: string;
+    locale: ContentLocale;
+    translationKey: string;
     courseId: string;
     courseSlug: string;
     module: string;
@@ -42,11 +48,19 @@ export function buildCourseCatalog(
   courses: CourseEntry[],
   lessons: LessonEntry[]
 ): CourseCatalog[] {
-  const courseSlugs = new Set(courses.map(course => course.data.slug));
+  const courseBySlug = new Map(
+    courses.map(course => [course.data.slug, course])
+  );
   for (const lesson of lessons) {
-    if (!courseSlugs.has(lesson.data.courseSlug)) {
+    const course = courseBySlug.get(lesson.data.courseSlug);
+    if (!course) {
       throw new Error(
         `Lesson ${lesson.id} references unknown course ${lesson.data.courseSlug}`
+      );
+    }
+    if (lesson.data.locale !== course.data.locale) {
+      throw new Error(
+        `Lesson ${lesson.id} locale ${lesson.data.locale} does not match course ${course.data.slug} locale ${course.data.locale}`
       );
     }
   }

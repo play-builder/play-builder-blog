@@ -9,6 +9,8 @@ const courses = [
       title: "Ethereum Validator Operations",
       slug: "ethereum-validator-operations",
       description: "Operate validators safely",
+      locale: "ko" as const,
+      translationKey: "ethereum-validator-operations",
       order: 1,
       tags: ["Ethereum"],
       lastEditedTime: new Date("2026-08-25T06:00:00Z"),
@@ -27,6 +29,8 @@ const lesson = (
     title: slug,
     slug,
     description: slug,
+    locale: "ko" as const,
+    translationKey: slug,
     courseId: "course-1",
     courseSlug: "ethereum-validator-operations",
     module,
@@ -63,6 +67,18 @@ describe("buildCourseCatalog", () => {
     orphan.data.courseSlug = "missing-course";
     expect(() => buildCourseCatalog(courses, [orphan])).toThrow(
       /unknown course/
+    );
+  });
+
+  it("rejects a lesson from a different locale than its course", () => {
+    const mismatched = lesson("english-lesson", "Setup", 1, 1);
+    const englishLesson = {
+      ...mismatched,
+      data: { ...mismatched.data, locale: "en" as const },
+    };
+
+    expect(() => buildCourseCatalog(courses, [englishLesson])).toThrow(
+      /Lesson.*en.*course.*ko/
     );
   });
 });
