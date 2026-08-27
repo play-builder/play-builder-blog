@@ -23,7 +23,7 @@ Recent topics include Kinesis hot-shard handling and iterator-age monitoring, ba
 - [Astro](https://astro.build/) with the [AstroPaper](https://github.com/satnaing/astro-paper) theme
 - [Tailwind CSS](https://tailwindcss.com/) + TypeScript
 - [Pagefind](https://pagefind.app/) static search
-- Markdown/MDX Tech Posts plus build-time Notion Courses
+- Locale-isolated Korean/English Markdown Tech Posts and build-time Notion Courses
 - Cloudflare Access-protected manual Production publishing
 - Type-safe frontmatter, RSS feed, sitemap, and dynamic OG image generation
 
@@ -47,15 +47,27 @@ pnpm lint         # lint with ESLint
 
 ## 📝 Writing a Post
 
-1. Add a markdown file to `src/content/posts/` (e.g. `my-post.md`).
-2. Put images in `src/assets/images/<post-slug>/` and reference them as `@/assets/images/<post-slug>/<file>`.
-3. Set the frontmatter:
+Korean is the default locale. A Korean Post and its English translation are two
+separate Markdown/MDX files; the site does not translate content at runtime.
+
+1. Add the Korean source to `src/content/posts/` (for example,
+   `src/content/posts/my-post.md`).
+2. Add the English translation to `src/content/posts/en/` (for example,
+   `src/content/posts/en/my-post.md`). English content is optional until it is
+   ready.
+3. Give both files the same stable `translationKey`. Set `locale: ko` on the
+   Korean file and `locale: en` on the English file.
+4. Put shared images in `src/assets/images/<post-slug>/` and reference them as
+   `@/assets/images/<post-slug>/<file>`.
+5. Set the frontmatter:
 
 ```yaml
 ---
-title: "Post title"
-description: Short summary used for SEO and previews.
+title: "한국어 글 제목"
+description: SEO와 카드에 표시할 한국어 요약입니다.
 pubDatetime: 2026-06-12T09:00:00Z
+locale: ko
+translationKey: my-post
 tags:
   - aws
   - kubernetes
@@ -64,7 +76,46 @@ draft: false
 ---
 ```
 
-Posts with `draft: true` are excluded from the build. Site-wide settings (title, socials, pagination, features) live in `astro-paper.config.ts`.
+The English file uses its own English `title`, `description`, and body while
+keeping the same `translationKey`:
+
+```yaml
+---
+title: "English post title"
+description: English summary used for SEO and previews.
+pubDatetime: 2026-06-12T09:00:00Z
+locale: en
+translationKey: my-post
+tags:
+  - aws
+  - kubernetes
+featured: false
+draft: false
+---
+```
+
+Posts with `draft: true` are excluded from the build. A missing translation is
+allowed: the language switcher opens the target locale's Posts list and does
+not advertise a false detail-page `hreflang`. Site-wide settings (title,
+socials, pagination, features) live in `astro-paper.config.ts`.
+
+## 🌐 Locale URL Matrix
+
+| Content    | Korean (default)              | English                          |
+| ---------- | ----------------------------- | -------------------------------- |
+| Home       | `/`                           | `/en/`                           |
+| Tech Posts | `/posts/`                     | `/en/posts/`                     |
+| Post       | `/posts/{slug}/`              | `/en/posts/{slug}/`              |
+| Courses    | `/courses/`                   | `/en/courses/`                   |
+| Course     | `/courses/{course}/`          | `/en/courses/{course}/`          |
+| Lesson     | `/courses/{course}/{lesson}/` | `/en/courses/{course}/{lesson}/` |
+| Search     | `/search/`                    | `/en/search/`                    |
+| RSS        | `/rss.xml`                    | `/en/rss.xml`                    |
+
+Every Post, Course, and Lesson body must be translated and authored separately.
+`TranslationKey` only connects the two records for language navigation; it does
+not generate translated text. Course and Lesson metadata/body authoring details
+are in the publishing guide below.
 
 ## 🎓 Publishing a Course
 

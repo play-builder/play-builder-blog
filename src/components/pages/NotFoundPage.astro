@@ -10,7 +10,8 @@ import config from "@/config";
 
 const { locale } = Astro.props as { locale: ContentLocale };
 const t = useTranslations(locale);
-const canonicalPath = localizedPath(locale, "404");
+const canonicalPath =
+  locale === "ko" ? "/404.html" : localizedPath(locale, "404");
 ---
 
 <Layout

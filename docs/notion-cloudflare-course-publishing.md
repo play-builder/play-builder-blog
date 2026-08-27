@@ -15,7 +15,7 @@
 
 ## 1. 최종 동작
 
-**핵심 요약:** 개인 Notion workspace 안에 Courses와 Lessons 데이터베이스를 둔다. 각 데이터베이스 행은 일반 표의 한 줄인 동시에 본문을 작성할 수 있는 Notion 페이지다. Lesson 페이지 본문이 실제 강의·실습 HTML로 변환된다.
+**핵심 요약:** 개인 Notion workspace 안에 Courses와 Lessons 데이터베이스를 둔다. 한국어와 영어 번역은 각각 독립된 행이며 `TranslationKey`로 연결한다. Lesson 페이지 본문이 실제 강의·실습 HTML로 변환된다.
 
 ```mermaid
 sequenceDiagram
@@ -25,7 +25,7 @@ sequenceDiagram
     participant Pages as Cloudflare Pages
     participant Site as blog.playbuilder.xyz
 
-    Author->>Notion: Course/Lesson 작성 및 Published 지정
+    Author->>Notion: ko/en Course/Lesson 작성 및 Published 지정
     Note over Notion,Site: 저장만으로 운영 사이트는 바뀌지 않음
     Author->>Admin: Access 로그인 후 Publish
     Admin->>Pages: 비밀 Deploy Hook POST
@@ -38,7 +38,7 @@ sequenceDiagram
     end
 ```
 
-이 그림에서 봐야 할 핵심은 Notion의 `Published`가 “다음 빌드에 포함”이라는 뜻이며, 실제 공개에는 Admin Publish와 성공한 Pages 빌드가 추가로 필요하다는 점이다.
+이 그림에서 봐야 할 핵심은 Notion의 `Published`가 “다음 빌드에 포함”이라는 뜻이며, 실제 공개에는 Admin Publish와 성공한 Pages 빌드가 추가로 필요하다는 점이다. 한 번의 성공한 빌드는 한국어와 영어에서 현재 유효한 모든 `Published` 레코드를 함께 배포한다.
 
 Notion의 `Share → Publish` 또는 `Publish to web`은 사용하지 않는다. 페이지는 웹에 직접 공개하지 않고 Notion connection에만 공유한다.
 
@@ -58,12 +58,16 @@ Notion의 `Share → Publish` 또는 `Publish to web`은 사용하지 않는다.
 | `Title`       | Title         | Ethereum Validator Operations   |
 | `Slug`        | Text          | `ethereum-validator-operations` |
 | `Description` | Text          | 과정 한 줄 설명                 |
+| `Locale`      | Select        | `ko` 또는 `en`                  |
+| `TranslationKey` | Text       | `ethereum-validator-operations` |
 | `Order`       | Number        | `1`                             |
 | `Status`      | Status        | Draft, Published, Archived      |
 | `Tags`        | Multi-select  | Ethereum, Linux                 |
 | `Cover`       | Files & media | 선택 이미지                     |
 
 `Slug`는 소문자 영문·숫자와 `-`만 사용한다. 예: `istio-ambient-lab`. 공백, 한글, 대문자, `_`가 있으면 빌드가 실패한다.
+
+`Locale` Select option은 정확히 `ko`, `en` 두 개를 만든다. `TranslationKey`는 같은 강좌의 한국어·영어 행에서 동일한 lowercase kebab-case 값을 사용한다. 예를 들어 두 언어의 제목과 `Slug`가 달라도 같은 강좌라면 `TranslationKey=ethereum-validator-operations`로 연결한다. 번역본이 아직 없으면 한 언어 행만 있어도 정상이다.
 
 Course 행을 열면 Notion 페이지가 된다. 현재 버전은 Course 페이지의 property를 과정 소개/목차로 사용하고, Course 페이지 본문 자체는 사이트에 렌더링하지 않는다.
 
@@ -82,17 +86,23 @@ Course 행을 열면 Notion 페이지가 된다. 현재 버전은 Course 페이�
 | `ModuleOrder`      | Number             | `1`                           |
 | `LessonOrder`      | Number             | `1`                           |
 | `Description`      | Text               | 레슨 한 줄 설명               |
+| `Locale`           | Select             | `ko` 또는 `en`                |
+| `TranslationKey`   | Text               | `install-execution-client`    |
 | `Status`           | Status             | Draft, Published, Archived    |
 | `EstimatedMinutes` | Number             | `30`, 선택 값                 |
 | `Tags`             | Multi-select       | Linux, Ethereum               |
 
-각 Lesson 행을 열고 본문에 heading, paragraph, list, code, callout, table, image 등 실제 강의 내용을 작성한다. `Course` relation은 반드시 한 개 Course만 지정한다.
+각 Lesson 행을 열고 본문에 heading, paragraph, list, code, callout, table, image 등 실제 강의 내용을 작성한다. `Course` relation은 반드시 한 개 Course만 지정하며, Lesson과 같은 `Locale`의 Course를 연결해야 한다. 즉, 한국어 Lesson은 한국어 Course에, 영어 Lesson은 영어 Course에 연결한다.
+
+같은 레슨의 한국어·영어 행은 동일한 `TranslationKey`를 사용하지만 제목, 설명과 본문은 각각 직접 작성한다. `TranslationKey`는 번역 레코드를 연결할 뿐 본문을 자동 번역하지 않는다.
 
 정렬 의미는 다음과 같다.
 
 1. `ModuleOrder`가 작은 모듈부터 표시된다.
 2. 같은 모듈에서는 `LessonOrder`가 작은 레슨부터 표시된다.
-3. Course와 Lesson이 모두 `Published`여야 공개 빌드에 포함된다.
+3. Course는 자신의 `Status=Published`일 때 목록에 표시된다.
+4. Lesson은 자신과 연결된 Course가 모두 `Published`일 때 표시된다.
+5. 한국어와 영어의 게시 상태는 독립적이다. 예를 들어 영어 Lesson을 Draft로 바꿔도 같은 `TranslationKey`의 한국어 Lesson에는 영향을 주지 않는다.
 
 ## 3. Notion API 연결
 
@@ -134,8 +144,8 @@ pnpm test
 
 정상 결과:
 
-- `Notion sync complete: 1 courses, 2 lessons`
-- `dist/courses/ethereum-validator-operations/` 생성
+- `Notion sync complete: 2 courses, 4 lessons; excluded 1 courses and 1 lessons.`
+- `dist/courses/ethereum-validator-operations/`와 `dist/en/courses/ethereum-validator-operations/` 생성
 - 모든 Vitest 테스트 통과
 
 ### 실제 Notion으로 로컬 빌드
@@ -156,7 +166,7 @@ set +a
 pnpm build
 ```
 
-정상 결과는 Published Course/Lesson 개수와 제외 개수가 출력되고 `dist/courses/`가 생성되는 것이다. `401`은 token, `404`는 잘못된 data source ID 또는 connection 공유 누락을 먼저 확인한다.
+정상 결과는 Published Course/Lesson 개수와 제외 개수가 출력되고 `dist/courses/` 및 공개할 영어 자료가 있을 때 `dist/en/courses/`가 생성되는 것이다. `401`은 token, `404`는 잘못된 data source ID 또는 connection 공유 누락을 먼저 확인한다.
 
 ## 5. Cloudflare Pages 설정
 
@@ -261,20 +271,26 @@ Cloudflare 공식 문서도 production branch 자동 배포를 끌 수 있다고
 
 ## 8. 평상시 게시 절차
 
-**핵심 요약:** Notion에서 Public web 전환이나 URL 입력 단계는 없다. Database page를 작성하고 Status를 바꾼 뒤 보호된 Admin 화면에서 전체 Published snapshot을 배포한다.
+**핵심 요약:** Notion에서 Public web 전환이나 URL 입력 단계는 없다. 언어별 Database page를 각각 작성하고 Status를 바꾼 뒤 보호된 Admin 화면에서 한국어·영어의 전체 Published snapshot을 한 번에 배포한다.
 
-1. Notion Lessons database에서 새 행을 만든다.
-2. `Title`, `Slug`, `Course`, Module/order, Description을 입력한다.
-3. 행을 페이지로 열어 실습 본문을 작성한다.
-4. 작업 중에는 `Status=Draft`를 유지한다.
-5. Course가 `Published`인지 확인한다.
-6. 공개할 모든 Lesson을 검토하고 `Status=Published`로 바꾼다.
-7. 브라우저에서 `https://blog.playbuilder.xyz/admin/publish/`를 연다.
-8. Cloudflare Access에서 등록된 관리자 email로 로그인한다.
-9. `Publish to Production`을 누르고 확인 dialog를 승인한다.
-10. `Deployment requested`가 표시되면 Cloudflare Pages Deployments를 연다.
-11. build status가 Success가 될 때까지 확인한다.
-12. 실제 Course/Lesson URL, 이미지, code block, 이전/다음 탐색, 검색을 확인한다.
+1. Courses database에서 대상 언어의 Course 행을 준비한다.
+2. `Title`, `Slug`, `Description`, `Locale`, `TranslationKey`, `Order`를 입력한다.
+3. Lessons database에서 같은 언어의 Lesson 행을 만든다.
+4. `Title`, `Slug`, `Description`, `Locale`, `TranslationKey`, Module/order를 입력하고 같은 `Locale`의 Course를 연결한다.
+5. 행을 페이지로 열어 해당 언어의 실습 본문을 직접 작성한다.
+6. 번역본이 필요하면 다른 `Locale`의 Course와 Lesson 행을 별도로 만들고 번역쌍에 같은 `TranslationKey`를 사용한다.
+7. 작업 중에는 각 행의 `Status=Draft`를 유지한다.
+8. 공개할 Course를 `Published`로 바꾸고, 공개할 Lesson도 각각 `Published`로 바꾼다.
+9. 브라우저에서 `https://blog.playbuilder.xyz/admin/publish/`를 연다.
+10. Cloudflare Access에서 등록된 관리자 email로 로그인한다.
+11. `Publish to Production`을 누르고 확인 dialog를 승인한다.
+12. `Deployment requested`가 표시되면 Cloudflare Pages Deployments를 연다.
+13. build status가 Success가 될 때까지 확인한다.
+14. 한국어와 영어 Course/Lesson URL, 이미지, code block, 이전/다음 탐색과 언어별 검색을 확인한다.
+
+번역본은 필수가 아니다. 대응하는 `TranslationKey`가 대상 언어에 없으면 언어 전환 버튼은 존재하지 않는 상세 URL을 만들지 않고 해당 언어의 Courses 목록으로 이동한다.
+
+이미 공개된 Course 또는 Lesson을 사이트에서 제거하려면 Notion에서 해당 행을 `Draft` 또는 `Archived`로 변경한 뒤 Admin Publish를 다시 실행해야 한다. 정적 사이트이므로 Status 변경만으로 현재 Production 파일이 즉시 사라지지 않는다.
 
 Publish 버튼 성공은 배포 완료가 아니라 Deploy Hook이 요청을 받았다는 뜻이다. 최종 판단은 Pages Deployment의 Success와 운영 URL 실측이다.
 
@@ -290,10 +306,14 @@ Publish 버튼 성공은 배포 완료가 아니라 Deploy Hook이 요청을 받
 | property validation 실패   | property 이름/type, slug, relation, order, Status                       |
 | Markdown incomplete 오류   | 권한 없는 child page, 미지원 block, 지나치게 큰 page 여부               |
 | 이미지 실패                | HTTPS URL, 10 MiB 제한, image Content-Type                              |
-| 새 내용이 안 보임          | Course와 Lesson 모두 Published인지, 새 deployment가 Production인지      |
+| 새 내용이 안 보임          | Locale, 같은 언어 Course relation, Course/Lesson Status, 새 Production deployment |
+| Draft로 바꿨는데 계속 보임 | Status 변경 후 Admin Publish를 다시 했는지                              |
+| 언어 전환이 목록으로 이동  | 오류가 아니라 대상 Locale에 같은 TranslationKey의 Published 번역이 없는 상태 |
 | 코드 push 후 배포 안 됨    | 정상 동작이다. 자동 Production build를 끈 상태에서는 Admin Publish 필요 |
 
-빌드 실패 시 Cloudflare Pages는 이전 성공 Production을 계속 서비스한다. Notion에서 즉시 Status를 Draft로 되돌릴 필요는 없지만, 원인을 수정한 뒤 다시 Publish해야 한다.
+동기화는 Draft 행까지 포함해 Locale, TranslationKey, Slug, relation과 중복을 먼저 검증한다. 검증, Markdown 조회 또는 asset 다운로드 중 하나라도 실패하면 새 generated content tree로 교체하지 않고 빌드를 중단한다. 따라서 부분적으로 생성된 ko/en 콘텐츠가 배포되지 않는다.
+
+빌드 실패 시 Cloudflare Pages는 이전 성공 Production을 계속 서비스한다. Notion에서 즉시 Status를 Draft로 되돌릴 필요는 없지만, 원인을 수정한 뒤 다시 Publish해야 한다. Publish 버튼의 `Deployment requested`는 queue 등록 성공일 뿐 콘텐츠 배포 성공을 의미하지 않는다.
 
 ## 10. 롤백과 비밀값 회전
 

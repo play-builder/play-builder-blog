@@ -26,6 +26,8 @@ export default defineConfig({
     sitemap({
       filter: page =>
         !page.includes("/admin/") &&
+        !page.endsWith("/404/") &&
+        !page.endsWith("/404.html") &&
         (config.features?.showArchives !== false ||
           !page.endsWith("/archives/")),
     }),
