@@ -27,19 +27,41 @@ describe("syncNotionCourses", () => {
       }
     );
     expect(summary).toEqual({
-      publishedCourses: 1,
-      publishedLessons: 2,
+      publishedCourses: 2,
+      publishedLessons: 4,
       excludedCourses: 1,
       excludedLessons: 1,
     });
     expect(Object.keys(generated).sort()).toEqual([
-      "courses/ethereum-validator-operations.json",
-      "lessons/ethereum-validator-operations/install-clients.md",
-      "lessons/ethereum-validator-operations/verify-sync.md",
+      "courses/en/ethereum-validator-operations.json",
+      "courses/ko/ethereum-validator-operations.json",
+      "lessons/en/ethereum-validator-operations/install-clients.md",
+      "lessons/en/ethereum-validator-operations/verify-sync.md",
+      "lessons/ko/ethereum-validator-operations/install-clients.md",
+      "lessons/ko/ethereum-validator-operations/verify-sync.md",
     ]);
     expect(
-      generated["lessons/ethereum-validator-operations/install-clients.md"]
-    ).toContain("courseSlug: ethereum-validator-operations");
+      generated["courses/ko/ethereum-validator-operations.json"]
+    ).toContain('"locale": "ko"');
+    expect(
+      generated["courses/en/ethereum-validator-operations.json"]
+    ).toContain('"translationKey": "ethereum-validator-operations"');
+    expect(
+      generated[
+        "lessons/ko/ethereum-validator-operations/install-clients.md"
+      ]
+    ).toContain("locale: ko");
+    expect(
+      generated[
+        "lessons/en/ethereum-validator-operations/install-clients.md"
+      ]
+    ).toContain("translationKey: install-clients");
+    expect(generated).not.toHaveProperty(
+      "courses/ethereum-validator-operations.json"
+    );
+    expect(generated).not.toHaveProperty(
+      "lessons/ethereum-validator-operations/install-clients.md"
+    );
   });
 
   it("does not replace the last successful output when markdown retrieval fails", async () => {
@@ -58,7 +80,7 @@ describe("syncNotionCourses", () => {
           replaceGenerated: async () => void (replaced = true),
         }
       )
-    ).rejects.toThrow(/lesson-1/);
+    ).rejects.toThrow(/lesson-(?:ko|en)-1/);
     expect(replaced).toBe(false);
   });
 });

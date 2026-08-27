@@ -106,7 +106,8 @@ export async function syncNotionCourses(
       assets[cover.publicPath.replace(/^\/notion-assets\//, "")] = cover.bytes;
       normalized = { ...course, coverUrl: cover.publicPath };
     }
-    files[`courses/${course.slug}.json`] = courseDocument(normalized);
+    files[`courses/${course.locale}/${course.slug}.json`] =
+      courseDocument(normalized);
   }
 
   for (const lesson of publication.lessons) {
@@ -129,6 +130,8 @@ export async function syncNotionCourses(
       title: lesson.title,
       slug: lesson.slug,
       description: lesson.description,
+      locale: lesson.locale,
+      translationKey: lesson.translationKey,
       courseId: lesson.courseId,
       courseSlug: course.slug,
       module: lesson.module,
@@ -138,7 +141,7 @@ export async function syncNotionCourses(
       tags: lesson.tags,
       lastEditedTime: lesson.lastEditedTime,
     };
-    files[`lessons/${course.slug}/${lesson.slug}.md`] =
+    files[`lessons/${lesson.locale}/${course.slug}/${lesson.slug}.md`] =
       `${frontmatter(data)}${markdown.trim()}\n`;
   }
 

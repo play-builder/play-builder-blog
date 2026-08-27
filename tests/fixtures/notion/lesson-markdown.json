@@ -1,4 +1,6 @@
 {
-  "lesson-1": "# Install clients\n\nInstall the execution and consensus clients.",
-  "lesson-2": "# Verify sync\n\nCheck the sync status before activating validators."
+  "lesson-ko-1": "# 클라이언트 설치\n\n실행 및 합의 클라이언트를 설치합니다.",
+  "lesson-ko-2": "# 동기화 확인\n\n검증인을 활성화하기 전에 동기화 상태를 확인합니다.",
+  "lesson-en-1": "# Install clients\n\nInstall the execution and consensus clients.",
+  "lesson-en-2": "# Verify sync\n\nCheck the sync status before activating validators."
 }
