@@ -42,6 +42,14 @@ export type SyncDependencies = {
 const frontmatter = (value: Record<string, unknown>) =>
   `---\n${YAML.stringify(value).trim()}\n---\n\n`;
 
+const normalizeNotionMarkdown = (markdown: string) =>
+  markdown
+    .replace(
+      /^<table_of_contents\b[^>]*\/>[^\S\r\n]*$/gm,
+      "## Table of contents"
+    )
+    .replace(/^(<\/table>[^\S\r\n]*)\r?\n(?=\S)/gm, "$1\n\n");
+
 async function localizeMarkdownImages(
   markdown: string,
   lesson: Lesson,
@@ -124,6 +132,7 @@ export async function syncNotionCourses(
         cause: error,
       });
     }
+    markdown = normalizeNotionMarkdown(markdown);
     markdown = await localizeMarkdownImages(markdown, lesson, deps, assets);
     const data = {
       notionId: lesson.id,
