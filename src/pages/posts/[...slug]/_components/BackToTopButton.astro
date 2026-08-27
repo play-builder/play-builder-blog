@@ -2,8 +2,10 @@
 import IconArrowLeft from "@/assets/icons/IconArrowLeft.svg";
 import IconArrowNarrowUp from "@/assets/icons/IconArrowNarrowUp.svg";
 import { useTranslations } from "@/i18n";
+import type { ContentLocale } from "@/i18n/locales";
 
-const t = useTranslations(Astro.currentLocale);
+const { locale } = Astro.props as { locale: ContentLocale };
+const t = useTranslations(locale);
 ---
 
 <div

@@ -22,6 +22,7 @@ export default {
     editPage: "Edit page",
     previousPost: "Previous Post",
     nextPost: "Next Post",
+    noPublishedPosts: "No published Tech Posts yet.",
   },
   pagination: {
     prev: "Prev",

@@ -1,0 +1,66 @@
+---
+import type { Page } from "astro";
+import type { CollectionEntry } from "astro:content";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Card from "@/components/Card.astro";
+import Footer from "@/components/Footer.astro";
+import Main from "@/components/Main.astro";
+import Pagination from "@/components/Pagination.astro";
+import { useTranslations } from "@/i18n";
+import {
+  CONTENT_LOCALES,
+  otherLocale,
+  type ContentLocale,
+} from "@/i18n/locales";
+import { sectionPath } from "@/i18n/urls";
+import Layout from "@/layouts/Layout.astro";
+import { postPageHref } from "@/posts/routes";
+import config from "@/config";
+
+const { locale, page } = Astro.props as {
+  locale: ContentLocale;
+  page: Page<CollectionEntry<"posts">>;
+};
+const t = useTranslations(locale);
+const canonicalPath = postPageHref(locale, page.currentPage);
+const alternates =
+  page.currentPage === 1
+    ? CONTENT_LOCALES.map(alternateLocale => ({
+        locale: alternateLocale,
+        href: sectionPath(alternateLocale, "posts"),
+      }))
+    : [{ locale, href: canonicalPath }];
+---
+
+<Layout
+  locale={locale}
+  title={`${t.pages.postsTitle} | ${config.site.title}`}
+  description={t.pages.postsDesc}
+  canonicalURL={new URL(canonicalPath, Astro.site ?? Astro.url).href}
+  alternates={alternates}
+  xDefaultHref={page.currentPage === 1 ? "/posts/" : canonicalPath}
+>
+  <Header
+    locale={locale}
+    languageHref={sectionPath(otherLocale(locale), "posts")}
+  />
+  <Breadcrumb />
+  <Main pageTitle={t.pages.postsTitle} pageDesc={t.pages.postsDesc}>
+    {
+      page.data.length > 0 ? (
+        <ul class="grid items-stretch gap-5 lg:grid-cols-2">
+          {page.data.map(data => (
+            <Card {...data} locale={locale} />
+          ))}
+        </ul>
+      ) : (
+        <p class="border-border rounded-xl border p-6">
+          {t.post.noPublishedPosts}
+        </p>
+      )
+    }
+  </Main>
+  <Pagination page={page} locale={locale} />
+  <Footer noMarginTop={page.lastPage > 1} />
+</Layout>

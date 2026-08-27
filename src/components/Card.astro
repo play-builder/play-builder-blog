@@ -2,13 +2,16 @@
 import type { CollectionEntry } from "astro:content";
 import { getPostUrl } from "@/utils/getPostPaths";
 import { toTransitionName } from "@/utils/toTransitionName";
+import type { ContentLocale } from "@/i18n/locales";
 import Datetime from "./Datetime.astro";
 
 type Props = {
   variant?: "h2" | "h3";
+  locale?: ContentLocale;
 } & CollectionEntry<"posts">;
 
 const { variant: Heading = "h2", id, data, filePath } = Astro.props;
+const locale = Astro.props.locale ?? data.locale;
 
 const { title, description, ...props } = data;
 ---
@@ -18,7 +21,7 @@ const { title, description, ...props } = data;
     class="border-border h-full rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-lg sm:p-6"
   >
     <a
-      href={getPostUrl(id, filePath, Astro.currentLocale)}
+      href={getPostUrl(id, filePath, locale)}
       class:list={[
         "text-accent inline-block text-lg font-semibold sm:text-xl",
         "decoration-dashed underline-offset-4 hover:underline",

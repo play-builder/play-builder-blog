@@ -5,13 +5,13 @@ import { emptyPostPage, getPostsForLocale } from "@/posts/routes";
 import config from "@/config";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const posts = await getPostsForLocale("ko");
+  const posts = await getPostsForLocale("en");
   return posts.length > 0
     ? paginate(posts, { pageSize: config.posts.perPage })
     : [
         {
           params: { page: undefined },
-          props: { page: emptyPostPage("ko", config.posts.perPage) },
+          props: { page: emptyPostPage("en", config.posts.perPage) },
         },
       ];
 }) satisfies GetStaticPaths;
@@ -19,4 +19,4 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page } = Astro.props;
 ---
 
-<PostsPage locale="ko" page={page} />
+<PostsPage locale="en" page={page} />

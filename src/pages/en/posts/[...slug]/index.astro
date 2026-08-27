@@ -3,7 +3,7 @@ import PostPage from "@/components/pages/PostPage.astro";
 import { getPostRouteData } from "@/posts/routes";
 
 export async function getStaticPaths() {
-  return (await getPostRouteData("ko")).map(route => ({
+  return (await getPostRouteData("en")).map(route => ({
     params: { slug: route.slug },
     props: { route },
   }));
@@ -12,4 +12,4 @@ export async function getStaticPaths() {
 const { route } = Astro.props;
 ---
 
-<PostPage locale="ko" route={route} />
+<PostPage locale="en" route={route} />

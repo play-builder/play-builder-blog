@@ -22,6 +22,7 @@ export default {
     editPage: "페이지 편집",
     previousPost: "이전 글",
     nextPost: "다음 글",
+    noPublishedPosts: "아직 공개된 기술 블로그가 없습니다.",
   },
   pagination: {
     prev: "이전",

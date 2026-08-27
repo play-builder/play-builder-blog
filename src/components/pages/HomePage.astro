@@ -1,0 +1,180 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import IconRss from "@/assets/icons/IconRss.svg";
+import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Socials from "@/components/Socials.astro";
+import Card from "@/components/Card.astro";
+import LinkButton from "@/components/LinkButton.astro";
+import CourseCard from "@/components/courses/CourseCard.astro";
+import type { CourseRouteData } from "@/courses/routes";
+import { useTranslations } from "@/i18n";
+import {
+  CONTENT_LOCALES,
+  otherLocale,
+  type ContentLocale,
+} from "@/i18n/locales";
+import { sectionPath } from "@/i18n/urls";
+import Layout from "@/layouts/Layout.astro";
+import config from "@/config";
+
+const { locale, posts, courses } = Astro.props as {
+  locale: ContentLocale;
+  posts: CollectionEntry<"posts">[];
+  courses: CourseRouteData[];
+};
+const { socials, posts: postsConfig } = config;
+const t = useTranslations(locale);
+const featuredPosts = posts.filter(({ data }) => data.featured);
+const recentPosts = posts.filter(({ data }) => !data.featured);
+const homePath = sectionPath(locale, "home");
+const targetHome = sectionPath(otherLocale(locale), "home");
+const alternates = CONTENT_LOCALES.map(alternateLocale => ({
+  locale: alternateLocale,
+  href: sectionPath(alternateLocale, "home"),
+}));
+const rssHref = locale === "ko" ? "/rss.xml" : "/en/rss.xml";
+---
+
+<Layout
+  locale={locale}
+  description={t.home.heroDescription}
+  canonicalURL={new URL(homePath, Astro.site ?? Astro.url).href}
+  alternates={alternates}
+  xDefaultHref="/"
+>
+  <Header locale={locale} languageHref={targetHome} />
+  <main
+    id="main-content"
+    data-layout="index"
+    data-home-path={homePath}
+    class="app-layout"
+  >
+    <section id="hero" class="border-border border-b pt-8 pb-6">
+      <h1 class="my-4 inline-block text-4xl font-bold sm:my-8 sm:text-5xl">
+        {t.home.heroTitle}
+      </h1>
+      <a
+        target="_blank"
+        href={rssHref}
+        class="inline-block"
+        aria-label={t.a11y.rssFeed}
+        title={t.a11y.rssFeed}
+      >
+        <IconRss
+          width={20}
+          height={20}
+          class="stroke-accent scale-125 stroke-3 rtl:-rotate-90"
+        />
+        <span class="sr-only">{t.a11y.rssFeed}</span>
+      </a>
+
+      <p class="max-w-5xl leading-7">{t.home.heroDescription}</p>
+      <p class="mt-2 max-w-5xl leading-7">{t.home.heroExplore}</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a
+          class="bg-accent text-accent-foreground rounded-lg px-4 py-2 font-semibold"
+          href={sectionPath(locale, "posts")}>{t.nav.posts}</a
+        >
+        <a
+          class="border-border rounded-lg border px-4 py-2 font-semibold"
+          href={sectionPath(locale, "courses")}>{t.nav.courses}</a
+        >
+        <a
+          class="border-border rounded-lg border px-4 py-2"
+          href="https://playbuilder.xyz">{t.home.profileWebsite}</a
+        >
+      </div>
+      {
+        socials.length > 0 && (
+          <div class="mt-4 flex max-sm:flex-col sm:items-center">
+            <div class="me-2 mb-1 whitespace-nowrap sm:mb-0">
+              {t.home.socialLinks}:
+            </div>
+            <Socials />
+          </div>
+        )
+      }
+    </section>
+
+    {
+      featuredPosts.length > 0 && (
+        <section
+          id="featured"
+          class:list={[
+            "pt-12 pb-6",
+            { "border-border border-b": recentPosts.length > 0 },
+          ]}
+        >
+          <h2 class="text-2xl font-semibold tracking-wide">
+            {t.home.featured}
+          </h2>
+          <ul class="mt-6 grid items-stretch gap-5 lg:grid-cols-2">
+            {featuredPosts.map(data => (
+              <Card variant="h3" {...data} locale={locale} />
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      recentPosts.length > 0 && (
+        <section id="recent-posts" class="pt-12 pb-6">
+          <h2 class="text-2xl font-semibold tracking-wide">
+            {t.home.latestPosts}
+          </h2>
+          <ul class="mt-6 grid items-stretch gap-5 lg:grid-cols-2">
+            {recentPosts.slice(0, postsConfig.perIndex).map(data => (
+              <Card variant="h3" {...data} locale={locale} />
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      courses.length > 0 && (
+        <section
+          id="published-courses"
+          class="border-border border-t pt-12 pb-6"
+        >
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-semibold tracking-wide">
+              {t.home.publishedCourses}
+            </h2>
+            <a class="hover:text-accent" href={sectionPath(locale, "courses")}>
+              {t.home.allCourses} →
+            </a>
+          </div>
+          <div class="mt-6 grid gap-5 md:grid-cols-2">
+            {courses.slice(0, 2).map(route => (
+              <CourseCard catalog={route.catalog} locale={locale} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <div class="my-8 text-center">
+      <LinkButton href={getRelativeLocaleUrl(locale, "posts")}>
+        {t.home.allPosts}
+        <IconArrowRight class="inline-block rtl:-rotate-180" />
+      </LinkButton>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const indexLayout = (document.querySelector("#main-content") as HTMLElement)
+      ?.dataset;
+    const baseRoot = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+    if (indexLayout?.layout) {
+      sessionStorage.setItem("backUrl", indexLayout.homePath ?? baseRoot);
+    }
+  });
+</script>

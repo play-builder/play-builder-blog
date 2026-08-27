@@ -3,7 +3,7 @@ import HomePage from "@/components/pages/HomePage.astro";
 import { getCourseRouteData } from "@/courses/routes";
 import { getPostsForLocale } from "@/posts/routes";
 
-const locale = "ko" as const;
+const locale = "en" as const;
 const [posts, courses] = await Promise.all([
   getPostsForLocale(locale),
   getCourseRouteData(locale),
