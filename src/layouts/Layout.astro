@@ -102,7 +102,7 @@ const rssHref = getRelativeLocaleUrl(
     <script is:inline>
       (function () {
         const stored = localStorage.getItem("theme");
-        const theme = stored ?? "dark";
+        const theme = stored === "light" || stored === "dark" ? stored : "dark";
         const root = document.firstElementChild;
         root?.setAttribute("data-theme", theme);
         root?.classList.toggle("dark", theme === "dark");

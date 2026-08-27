@@ -1,16 +1,18 @@
 const THEME_KEY = "theme";
 const LIGHT = "light";
 const DARK = "dark";
+type Theme = typeof LIGHT | typeof DARK;
 
-function getPreferredTheme(): string {
+export {};
+
+function getPreferredTheme(): Theme {
   const stored = localStorage.getItem(THEME_KEY);
-  if (stored) return stored;
-  return DARK;
+  return stored === LIGHT || stored === DARK ? stored : DARK;
 }
 
 // Reuse the value already set by the inline FOUC-prevention script if available.
-let themeValue: string =
-  (window as unknown as { __theme?: { value: string } }).__theme?.value ??
+let themeValue: Theme =
+  (window as unknown as { __theme?: { value: Theme } }).__theme?.value ??
   getPreferredTheme();
 
 function persist(): void {
@@ -22,7 +24,12 @@ function reflect(): void {
   const root = document.firstElementChild;
   root?.setAttribute("data-theme", themeValue);
   root?.classList.toggle("dark", themeValue === DARK);
-  document.querySelector("#theme-btn")?.setAttribute("aria-label", themeValue);
+  const themeButton = document.querySelector<HTMLButtonElement>("#theme-btn");
+  const buttonLabel =
+    themeValue === DARK
+      ? themeButton?.dataset.labelLight
+      : themeButton?.dataset.labelDark;
+  if (buttonLabel) themeButton?.setAttribute("aria-label", buttonLabel);
 
   // Fill <meta name="theme-color"> with the computed background colour so
   // Android's browser chrome matches the page background.
@@ -57,11 +64,3 @@ document.addEventListener("astro:before-swap", event => {
       ?.setAttribute("content", color);
   }
 });
-
-// Sync with OS-level dark/light preference changes.
-window
-  .matchMedia("(prefers-color-scheme: dark)")
-  .addEventListener("change", ({ matches }) => {
-    themeValue = matches ? DARK : LIGHT;
-    persist();
-  });

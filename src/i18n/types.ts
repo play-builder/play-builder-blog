@@ -57,6 +57,8 @@ export interface UIStrings {
     openMenu: string;
     closeMenu: string;
     toggleTheme: string;
+    switchToLightTheme: string;
+    switchToDarkTheme: string;
     searchPlaceholder: string;
     noResults: string;
     goToPreviousPage: string;
