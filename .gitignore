@@ -39,3 +39,10 @@ src/content/generated-notion/
 
 # docker compose
 compose.override.yaml
+
+# editor / OS
+*.swp
+*.swo
+*~
+.DS_Store
+.idea/
