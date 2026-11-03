@@ -8,7 +8,7 @@
 
 **Tech Stack:** Astro 6.4, TypeScript 6, Astro Content Collections, Vitest 4, Pagefind 1.5, Notion API build-time sync, Tailwind CSS 4, Cloudflare Pages static hosting.
 
-**Spec:** `docs/superpowers/specs/2026-08-27-multilingual-content-design.md`
+**Spec:** `docs/design/specs/2026-08-27-multilingual-content-design.md`
 
 ## Global Constraints
 

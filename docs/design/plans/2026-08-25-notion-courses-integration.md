@@ -8,7 +8,7 @@
 
 **Tech Stack:** Astro 6.4.2, TypeScript 6, Node.js >=22.12, pnpm, Vitest 4.1.11, `jose` 6.2.10, `yaml` 2.9.0, Cloudflare Pages Functions, Notion API `2026-03-11`
 
-**Spec:** `docs/superpowers/specs/2026-08-25-notion-courses-integration-design.md`
+**Spec:** `docs/design/specs/2026-08-25-notion-courses-integration-design.md`
 
 ## Global Constraints
 
